@@ -1,0 +1,43 @@
+### 今日の目標
+* Practice gitを終了させる。
+* Practice FizzBuzzアプリの完成
+
+
+### 今日の積み上げ
+* git単元とりあえず終了
+* FizzBuzzアプリもコードは完成（プルリクエストがまだ行えてない。）
+
+##### * unlessの使い方
+条件が満たされていないときに処理を実行する。それ以外は実行しない。
+ex) unless menu[:tea]  この場合だとteaの値がnilの時に処理を実行する。
+
+* 配列・ハッシュに要素を追加または削除する方法
+ハッシュ
+menu = {coffee: 300, latte: 400}
+menu[:mocha] = 400  ←追加したいキーに値を代入する。これで追加完了。
+menu.delete(:latte)  ←これで削除完了。
+
+配列
+drinks = ["coffee"]
+drink.push("latte)     ←これでラテが末尾に追加された。
+drink.unshift("moca")  ←これでモカが先頭に追加された。
+drink.pop              ←配列の末尾から要素を１つ削除。
+drink.shift            ←配列の先頭から要素を１つ削除。
+
+##### * returnの使い方
+return単体ではその時点で処理を終わらせるという意味を持っている。
+これをunlessと組み合わせることで条件によって処理を変化させることができる。
+ex)
+def thanks(receipt)
+    puts "thank you"
+    unless receipt   ←receiptがfalesの時にretunが実行されるのでここで処理が終了。
+        return
+    end
+    puts "here"     ←receiptがtureでここまで処理が終了。
+end
+
+*
+
+
+
+
