@@ -1,0 +1,60 @@
+### 今日の積み上げ
+* 現場railsのchapter3,4
+* praciceのrailsにおけるリクエスとレスポンス
+
+### 明日やること
+* 現場railsのchapter3,4
+* practice curlとテーブル設計
+
+
+* GETとPOSTの違い
+- - - 
+ **GET**メソッドは、サーバーに対して指定したリソースを返すよう求めるためにブラウザーが使用するメソッドです。
+"やあサーバー、このリソースをくれよ。" この場合、ブラウザーは空の本文を送信します。
+本文が空であるため、フォームをこのメソッドで送信する場合はデータを URL の後に付加します。
+ **POST**は、HTTP リクエストの本文で提供したデータを考慮したレスポンスの要求を、ブラウザーがサーバーに送信するためのメソッドです。
+"やあサーバー、このデータを見て適切な結果を返してよ。" 
+このメソッドを使用してフォームを送信する場合は、データが HTTP リクエストの本文の後に追加されます。
+
+今までは単にデータの送信の仕方に違いがあると認識していたがGETはサーバーに対してリソースの返却を求める。
+POSTは提供したデータを考慮してレスポンスの要求をするものである。
+参考記事
+https://developer.mozilla.org/ja/docs/Learn/Forms/Sending_and_retrieving_form_data
+
+
+* form_withについて
+- - - 
+form_withはモデルオブジェクトを使用してHTMLのform要素を作成するためのメソッドである。
+INPUT」とは、<form>タグで作成したフォームの中でテキスト入力欄やボタンなどの部品を作成する要素です。
+部品はtype属性の値に指定することが可能で、一行テキストボックス、チェックボックス、ラジオボタン、
+実行ボタン、リセットボタンなどの部品を作成することができます。
+input要素に入力された情報は、データとしてサーバに送信されます。
+form_with内にlocal: trueを書く理由について
+書かないとHTMLとしてフォームの送信ができない。
+参考記事
+https://qiita.com/kmjooh/items/c533b2f72a2f3e5a29a9
+https://pikawaka.com/word/ajax
+https://html-coding.co.jp/annex/dictionary/html/input/
+
+
+* fizzbuzz問題の修正
+- - - 
+```
+number = ARGV[0].to_i
+p number
+number.times do |x|
+  number += 1
+  if x % 15 == 0
+    puts "FizzBuzz!"
+  elsif x % 5 == 0
+    puts "Buzz!"
+  elsif x % 3 == 0
+    puts "Fizz!"
+  else
+    puts x
+  end
+end
+```
+このコードだと任意の数ex)30を代入しても29までしか結果が表示されない。
+なのでnumber = ARGV[0].to_iをnumber = ARGV[0].to_i + 1に変更して対処した。
+
