@@ -1,0 +1,180 @@
+##### 今日の積み上げ
+・じゃんけんプログラム修正
+・railsにおけるリクエストとレスポンスについてアウトプット(RESTについてなど)
+
+
+
+##### じゃんけん課題
+指摘箇所
+1, 要件の方ではCPU…パーの形になっているが自分の出力結果はCPU pになっているので修正する。
+2, メソッド内でメソッドを定義してしまっていたので修正する。
+3, while文の書き換え（リファクタリング）
+
+
+1,について
+変更前
+cards = ["g", "c", "p"]
+        cpu = cards.sample
+        puts "じゃんけん（g, c, pから選択してください）"
+        user = gets.chomp
+        puts "CPU #{cpu}"
+        puts "あなた #{user}"
+
+変更後
+cards = ["g", "c", "p"]
+    cpu = cards.sample
+    puts "じゃんけん（g, c, pから選択してください）"
+    hands = {g: "グー", c:"チョキ", p:"パー"}
+    user = gets.chomp
+    puts "CPU… #{hands[cpu.to_sym]}"
+    puts "あなた… #{hands[user.to_sym]}"
+
+解決方法
+じゃんけんの手でハッシュを作成した。これによってg,c,pをキーとして値で表示したい日本語を繋げることができた。
+ハッシュから値を取得する方法は ハッシュ名.[キー名]である。今回の場合はuserに格納されているのはgetsで入力
+された文字列の値であるためそれを.to_symメソッドを使用してキー(シンボルオブジェクト)に変更して値を取得した。
+
+2,について
+変更前
+def jyanken
+    def battle
+        # お互いの手
+        cards = ["g", "c", "p"]
+        cpu = cards.sample
+        puts "じゃんけん（g, c, pから選択してください）"
+        user = gets.chomp
+        puts "CPU #{cpu}"
+        puts "あなた #{user}"
+    
+        # 勝敗
+        if user == cpu
+            puts "あいこ"
+            return true
+        elsif  (user == "g" && cpu == "c") || (user == "c" && cpu == "p") || (user == "p" && cpu == "g")
+            puts "あなたの勝ち"
+            @result[0] += 1
+            puts "#{@result[0]}勝#{@result[1]}敗"
+            return false
+        else 
+            puts "あなたの負け"
+            @result[1] += 1
+            puts "#{@result[0]}勝#{@result[1]}敗"
+            return false
+        end
+    end
+    
+    # あいこ時の繰り返し処理
+    next_game = true
+    while next_game do
+        next_game = battle
+    end
+end
+
+
+変更後
+def battle
+    # お互いの手
+    cards = ["g", "c", "p"]
+    cpu = cards.sample
+    puts "じゃんけん（g, c, pから選択してください）"
+    hands = {g: "グー", c:"チョキ", p:"パー"}
+    user = gets.chomp
+    puts "CPU… #{hands[cpu.to_sym]}"
+    puts "あなた… #{hands[user.to_sym]}"
+
+    # 勝敗
+    if user == cpu
+        puts "あいこ"
+        return true
+    elsif  (user == "グー" && cpu == "チョキ") || (user == "チョキ" && cpu == "パー") || (user == "パー" && cpu == "グー")
+        puts "あなたの勝ち"
+        @result[0] += 1
+        puts "#{@result[0]}勝#{@result[1]}敗"
+        return false
+    else 
+        puts "あなたの負け"
+        @result[1] += 1
+        puts "#{@result[0]}勝#{@result[1]}敗"
+        return false
+    end
+end
+
+def jyanken
+    # あいこ時の繰り返し処理
+    next_game = true
+    while next_game do
+        next_game = battle
+    end
+end
+
+解決方法
+普通に分けただけ。メソッド作る意味はブロックに分けて可読性を上げるためだと思うから
+メソッドの中にメソッドを作るのはよろしくない。
+
+
+3,につい
+変更前
+def jyanken
+    # あいこ時の繰り返し処理
+    next_game = true
+    while next_game do
+        next_game = battle
+    end
+end
+
+変更後
+while battle do
+  battle
+end
+
+問題点
+書き換えるとあいこが発生した場合に勝負回数自体が１つ増えてしまう。
+ex)３回勝負で途中にあいこが１回はいると4回battle処理が繰り返されてしまう。
+
+
+
+参考記事
+about じゃんけん
+https://www.javadrive.jp/ruby/for/index1.html
+
+
+
+##### railsにおけるリクエストからレスポンスの流れについて
+訂正箇所
+1, POSTとGETの違いRESTの観点から説明
+機密性という側面も確かにありますが、どちらかというと「RESTの性質」という側面のほうが強いです。
+https://www.setouchino.cloud/blogs/81
+メソッドによって操作を指定できるんですね。RESTんいついて全然理解が足りてなかったので勉強になりました。
+
+2, 投稿することでビューに書き込まれたデータがデータベースへと送信される。
+詳しく説明
+投稿ボタンを押すことでaction属性の/tasksに対してPOSTメソッドで
+メッセージボディ内にHTML型のデータが格納されたHTTPリクエストが作成され、webサーバーへと送られる。
+
+
+3, 詳細画面へ移動すると投稿した内容が以下の画像のrespons メッセージボディに記入されwebサーバーへと送信される。
+調べ直し
+詳細画面に移動すると先ほど保存されたデータが表示される。
+詳細画面に移動することでwebサーバーへレスポンスメッセージが送られるのではなく既にこれまでの操作で保存されていたデータが表示される。）
+
+
+4, 「指定のviewをHTTPリクエストで返す」 
+指定のviewをHTTPリクエストで返すのではなく、指定されたコントローラーとアクションの処理を実行する（今回であれば新規投稿ページの表示）という認識で問題ないでしょうか？
+
+##### RESTについて
+・RESTfulという単語はRESTの原則に則って作られたAPI を意味している。
+・RESTAPIの特徴
+1, URI(HTTPのパス)が名詞形であること(動詞を含まないこと)
+e.g)REST APIの場合、URIは /users、 非RESTの場合は /get_users のようになっていました。
+2, リソース(操作対象のもの)の操作(作成/閲覧/変更/削除)をHTTPのメソッドにより指定できること
+HTTPのメソッドを変えることで作る、消すなどの操作を変える というのが回答となります。
+GETメソッドでアクセスする -> ユーザ一覧を返す
+POSTメソッドでアクセスする -> ユーザを新規作成する
+3, レスポンス形式がjsonもしくはXMLであること
+
+
+REST参考記事
+https://www.setouchino.cloud/blogs/81#http
+
+
+
