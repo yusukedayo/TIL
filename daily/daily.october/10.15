@@ -1,0 +1,74 @@
+### 今日やること
+* 現場rails chapter3の復習 ●
+* 現場rails chapter4の復習 ●
+* じゃんけんプログラム修正
+* practice課題の修正
+* paiza Cランクメニュー×30
+https://paiza.jp/works/mondai/c_rank_level_up_problems/problem_index?language_uid=ruby
+* じゃんけん課題他の人のをコードリーディング
+
+
+* 標準入出力 step4
+n = gets.to_i
+
+arr = Array.new(n)
+n.times { |i| arr[i] = gets.to_i }
+
+puts arr.max
+
+Ruby では arr = Array.new(n) と書くことで長さ n の配列 arr を用意することができます。
+ブロックの冒頭に |i| と書くと、「いま何回目のループか」が i に順々に代入されます。初回は 0 回目なので注意して下さい。
+arr のインデックス i の要素に値 x を代入するには arr[i] = x のように書きます。
+今回は入力値を整数に変換して代入したいので a[i] = gets.to_i と書きます。
+配列内の最大値は arr.max() のように書くと取得することができます。
+
+
+* splitメソッドとは
+以下のコードのように文字列をカンマ(,)で分割し、その分割した文字列を要素とした配列で取得する事が出来ます。
+"Apple,Orange,Cherry,Banana".split(',')
+=> ["Apple", "Orange", "Cherry", "Banana"]
+"文字列".split(区切り文字, 分割数)
+"Tokyo:Saitama:Okinawa".split(':', 2)
+=> ["Tokyo", "Saitama:Okinawa"] # 2分割に制限され要素は2つになる
+
+
+* .maxメソッド
+配列の中の最大値を持つ要素を取得することができるメソッドです。
+空の配列の場合はnilを返します。
+また最大値だけでなく、値の大きいもの順にいくつ取得するか引数で指定することもできます。
+その場合、返却値は配列となります。
+[5, 6, 2, 9, 8, 3].max
+=> 9
+[5, 6, 2, 9, 8, 3].max(3)
+=> [9, 8, 6]
+
+* renderメソッドのパーシャルテンプレートを使用すると同じ内容のhtmlファイルを１つ作るだけでよくなる。
+
+n = gets.to_i
+arry = Array.new(n)
+n.times do |x|
+    arry.push("paiza")
+end
+
+puts arry.join(' ')
+
+n = gets.to_i
+
+arr = Array.new(n)
+n.times { |i| arr[i] = 'paiza' }  ###配列への渡し方がちゃんと回数ごとに切り替わるからうまくいくのかも。
+
+puts arr.join(' ')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
