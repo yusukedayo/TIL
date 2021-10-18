@@ -1,0 +1,121 @@
+#### CRUD機能の実装方法について
+
+1, モデルの作成
+railsではコントローラーやビューからモデルを使用することが多いのでモデルを先に作成する。
+モデル作成時にはテーブルに持たせるカラムのデータ属性に関しても考える必要がある。
+作成のコードは 
+・rails g model モデル名 name(属性名):string(データ型)
+・rails db:migrate
+
+2, コントローラーとビューの作成
+rails g contoroller tasks index show new edit
+コントローラーと同時にアクション名も設定することによって画面のひな形も作成してくれる。
+よって、コントローラーを作成するときはどんなアクションが必要なのかも同時に考える必要がある。
+コントローラーの作成と同時にconfig/routes.rbでルーティングが設定される。CRUD機能の場合は
+デフォルトの個別設定からresources :tasksに変更することで一括でルーティングを管理できる。
+また、root to: 'tasks#index'を設定るることでデフォルト画面をrailsのものから変更できる。
+
+3, 新規登録機能の実装
+・新規登録画面のためにnewアクションを設定する。
+def new
+    @task = Task.new
+end
+newアクション上ではTaskモデルから新しいオブジェクトを生み出して@taskのインスタンス変数に代入することで
+ビューに対してモデルのデータを受け渡すことを可能にしている。
+・newアクションのビューファイルで投稿フォームを作成する。
+<%= form_with model: @task, local: true do |f| %>
+フォームの詳しい書き方はここ見てね
+https://tech-essentials.work/course_outputs/201
+<%= f.submit nill, class: 'btn-primary' %>
+このform_withメソッドがフォームに必要なHTMLを出力してくれる。つまり簡略してフォームを記述する役割を担ってくれている。
+model: @taskの部分でモデルを引数として受け取ることによってモデルに関連したフォームを生成することができる。
+
+4, createアクションの実装
+createアクションでは「登録フォームから送られてきたデータをデータベースに保存して一覧画面に移動」を行う。
+app/contorolers/tasks_contoroller/rb
+def create
+  task = Task.new(task_params)
+  task.save!
+  redirect_to tasks_url
+end
+
+praivate
+# クラスの外から呼び出すことを制限している。
+
+def task_params #想定していないデータを受け取らないための処理
+  params.require(:task).permit(:name, :description)
+  #paramsメソッドは投稿された入力フォームからデータを取り出すメソッド。
+  #requireメソッドで受け取るパラメータ群を、permitメソッドで利用可能なパラメータ名を指定
+end
+
+・登録ボタンを押す
+登録ボタンを押すとtasksコントローターのcreateアクションを処理するPOST型のHTTPリクエストがwebサーバーを介して
+アプリに送信される。それに従いcreateアクションが処理され、task_paramsによって指定された情報のみがフォームから
+取り出されてsave!メソッドによってデータベースに保存される。
+保存後はredirectメソッドによって新たにtasksコントローラーのindexアクションを処理するGET型のリクエストが生成され
+一覧画面が表示される。
+
+4, 一覧画面の表示
+・indexアクションではビューで使用したい全てのタスクのデータを取得してインスタンス変数へと格納する。
+そのためにTaskモデルに対してallメソッドを行っている。
+app/contorolers/tasks_contoroller.rb
+def index
+  @tasks = Task.all
+end
+・indexのビューで@taskに格納した情報をeachメソッドを使用して1つずつタスクを表示する。
+app/contorolers/tasks/index.erb
+<% @tasks.each do |task| %>
+<%= task.name%>
+<%= task.created_at%>
+
+5, 詳細画面の表示
+・指定されたidのタスクのみを表示できる機能を実装する。
+app/contorolers/tasks_contoroller.rb
+def show
+  @task = Task.find(params[:id])
+end
+findメソッドは対象オブジェクトの中から引数に指定したものと一致するものを取り出すことができる。
+今回の場合はタスクが記録されているTaskモデルの中から(params[:id])と一致するものを@taskに格納している。
+ここでの(params[:id])はHTTPリクエストから得られるidが格納されている。一覧画面にそれぞれのタスクにリンクを張る。それが機能する。
+・showのビューにおいてタスクの詳細を表示する。
+app/views/tasks/show.html.erb
+<%= @task.id %>
+<%= @task.name %>
+<%= @task.discription %>
+<%= @task.created_at %>
+<%= @task.updated_at %>
+
+6, 編集機能を実装する。
+・既に登録されている情報を変更してデータベースに保存する。
+編集画面を表示するeditアクションと情報を更新するupdateアクションが必要。
+app/contorolers/tasks_contoroller.rb
+def edit
+ @task = Task.find(params[:id])
+end
+# 変更を行いたいtaskのみをビューに受け渡すためfindメソッドの引数でidを受け取っている。
+def updated
+  task = Task.find(params[:id])
+  task.update!(task_params)
+  redirect_to tasks_url
+end
+app/views/edit.erb
+表示内容はnewと全く一緒になる。
+<%= form_with model: @task, local: true do |f| %>
+フォームの詳しい書き方はここ見てね
+https://tech-essentials.work/course_outputs/201
+<%= f.submit nill, class: 'btn-primary' %>
+
+7, 削除機能を実装する。
+・指定されたidを受け取りTaskオブジェクトをデータベースから取得し、destroyメソッドによって
+データベースからタスクレコードを破壊する。
+app/contorolers/tasks_contoroller.rb
+def destory
+  task = Task.find(params[:id])
+  task.destory
+  redirect_to tasks_url
+end
+
+
+###もう少し学習すべきポイント
+・フォームがform_withによってどのように作成されるのか
+・link_toメソッドによってどんなリクエストが送信されているのかなど
