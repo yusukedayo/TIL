@@ -1,0 +1,18 @@
+### 今日やること
+* paiza Cランクメニューの残り loop文と前回までの苦手問題 1時間 ●
+https://paiza.jp/works/mondai/c_rank_level_up_problems/problem_index?language_uid=ruby
+* 卒論
+
+
+### 今日の学び
+・ハッシュの値の更新は ハッシュ[キー] = 更新したい値 でできる
+
+・ハッシュ.sort とすると、ハッシュ のキーで昇順にソートする
+ハッシュの値でソートしたいときの方法はたとえば、以下の方法があります。
+ハッシュ.sort {|this, other| this[1] <=> other[1]}
+ハッシュ.sort_by {|_, val| val}
+
+
+
+
+
