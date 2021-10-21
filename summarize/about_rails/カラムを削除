@@ -1,0 +1,26 @@
+・テーブルに変更を加えたいとき
+1, 変更を加えるためのマイグレーションファイルを作成する。
+コマンドで rails g migration AddColumTitles を実行する。
+注意:クラス名は任意だが行う「処理＋テーブル名」にした方がわかりやすい。
+class AddColumnTitles < ActiveRecord::Migration
+  def up
+    add_column :titles, :place, :string
+  end
+
+  def down
+    remove_column :titles, :place, :string
+  end
+end
+
+・もっと便利な方法
+rails generate migration クラス名 カラム名:データ型( カラム名:データ型)
+クラス名はAddXXXToYYYまたはRemoveXXXFromYYYとします。
+YYYにはテーブル名を指定します。
+XXXには追加又は削除するカラム名を指定するのですが違う文字列でも構いません
+を実行することによって自動的にadd_columまたはremove_columを呼び出せる。
+e.g)
+追加：
+rails generate migration AddDetailsToTitles price:integer author:string
+削除:
+rails generate migration RemoveAuthorFromTitles author:string
+https://qiita.com/azusanakano/items/a2847e4e582b9a627e3a

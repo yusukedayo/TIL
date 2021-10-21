@@ -6,6 +6,8 @@ railsではコントローラーやビューからモデルを使用すること
 作成のコードは 
 ・rails g model モデル名 name(属性名):string(データ型)
 ・rails db:migrate
+注意：
+モデル名の命名規則は キャメル型の単数形 e.g) Question, Taskなど
 
 2, コントローラーとビューの作成
 rails g contoroller tasks index show new edit
@@ -23,6 +25,15 @@ end
 newアクション上ではTaskモデルから新しいオブジェクトを生み出して@taskのインスタンス変数に代入することで
 ビューに対してモデルのデータを受け渡すことを可能にしている。
 ・newアクションのビューファイルで投稿フォームを作成する。
+フォームでは、何を・どこに・どのように・どんなinputで送るかが定義されている。
+どこのURLに
+どのようなメソッドで
+どのようなパラメータを送るか
+keyとvalueは何か
+フォームの種類は何か
+HTMLのinputで指定する
+text_fieldなどがある
+実は20種類以上もある
 <%= form_with model: @task, local: true do |f| %>
 フォームの詳しい書き方はここ見てね
 https://tech-essentials.work/course_outputs/201

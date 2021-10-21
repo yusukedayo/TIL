@@ -1,0 +1,26 @@
+・モデルを削除したいとき
+-----rails db:migrateまで行ってしまった場合-----
+1, rails db:migrate:status  を実行する。結果として以下が返ってくる。
+statusがupの状態でrails destroy model名を行ってもmigrationから削除されないのでupからdownの状態にする。
+Status Migration ID Migration Name
+--------------------------------------------------
+up 20190516135900 Create users
+up 20190517140023 Add password digest to users
+up 20190607063428 Create contents
+2,モデルをmigrationから削除するために rails db:rollbackを行う。
+これでdown状態になるのでrails destroy model名で削除が可能になる。
+https://note.com/simesime/n/n69396128e65f
+
+-----rails db:migrateはしてないとき-----
+rails destroy model モデル名
+
+
+
+
+
+
+
+
+
+
+
