@@ -1,0 +1,26 @@
+### 今日やること
+* paiza Cランクメニューの残り スキルアップ問題 1時間 ●
+https://paiza.jp/works/mondai/c_rank_level_up_problems/problem_index?language_uid=ruby
+* practice 質問アプリの実装
+
+
+### 学んだこと
+・renderオプションのパーシャルを使うと共通化したHTMLファイルを作成することができる。
+作成方法
+1,パーシャルテンプレートファイルを作成する。app/views/questions/_form.html.erb
+注意：テンプレートのファイル名の先頭には_を入れる。
+2.app/views/questions/_form.html.erbに共通化したいコードを書いていく。
+<%= form_with model: question do |f| %>
+  <%= f.label :"質問タイトル"  %>
+  <%= f.text_field :title, id: "question_title" %>
+  <%= f.label :"質問内容"  %>
+  <%= f.text_field :body, id: "question_body" %>
+  <%= f.submit nil, class: "btn btn-primary" %>
+<% end %>
+3,共通化したものを使用したいファイルに書き込む。
+app/views/questions/new.html.erb
+<%= render partial: "form", locals: { task: @task } %>
+                                          ↑ここでtaskにインスタンス変数の@taskを引き渡している。
+・paiza問題の繰り返し処理が特に苦手。
+繰り返し配列を受け取るにはどうすればいいかの部分をもう少し勉強する。
+

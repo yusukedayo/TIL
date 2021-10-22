@@ -24,3 +24,4 @@ rails generate migration AddDetailsToTitles price:integer author:string
 削除:
 rails generate migration RemoveAuthorFromTitles author:string
 https://qiita.com/azusanakano/items/a2847e4e582b9a627e3a
+
