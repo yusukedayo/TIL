@@ -1,0 +1,79 @@
+### 今日やること
+* paiza Cランクメニューの残り スキルアップ問題 1時間 ●
+https://paiza.jp/works/mondai/c_rank_level_up_problems/problem_index?language_uid=ruby
+* practice 質問アプリの実装
+
+
+
+### 学んだこと
+・form_withについてブログ記事にまとめた
+https://yusuke-learning.hatenablog.com/?_ga=2.267651211.424324134.1635082503-1280849673.1630324686
+
+・urlを作成してくれるメソッドについて理解が足りていないから以下のコードの使い分けがわからないことに気づいた。
+    redirect_to admin_user_path(@user)
+    redirect_to admin_user_url
+_urlと_pathはどう使い分けるのかとか   明日調べてまとめる
+
+・ユーザー登録のCRUD機能を作成しているとエラーに引っかかった。
+エラーの内容は以下のとおりである。
+ActiveRecord::RecordNotFound in Admin::UsersController#show
+Couldn't find User with 'id'=13
+原因はdestroyアクション後のredirect先がshowアクションになってしまっていたから。
+admin_user_pathとadmin_users_pathによってそれぞれどんなURLが生成されるのかを理解できてなかったので起きてしまった。
+  def destroy
+    @user = User.find(params[:id])
+    @user.destroy
+    redirect_to admin_user_path
+  end
+
+  def destroy
+    @user = User.find(params[:id])
+    @user.destroy
+    redirect_to admin_users_path
+  end
+
+
+---文字列FINAL-----------------------------------------------------------------------------------------------
+タクシーの運賃は初乗り距離と初乗り運賃、加算距離、加算運賃で決まります。
+タクシーの乗車距離が初乗り距離未満の場合は、初乗り運賃だけで移動することができます。
+初乗り距離と同じ距離だけ乗車した段階で、運賃に加算運賃が追加され、以後加算距離を移動する毎に加算運賃が追加されていきます。
+あなたは今いる場所から X メートル離れた場所へ、 1 台のタクシーで移動しようとしています。
+利用可能なタクシー N 台の料金のパラメータが与えられるので、タクシーで X メートル移動した際の最安値と最高値を計算してください。
+例えば、 入力例 1 の場合は以下のように 600円 が最安値となり、 800円 が最高値となります。
+1 番目のタクシーは初乗り距離以上なので加算距離 1 つ分が追加され 600円 かかります。
+2 番目のタクシーは初乗り距離までで到着するので、初乗り運賃のみで 800円 かかります。
+
+3 600
+600 200 200 400
+900 800 400 500
+200 200 200 300
+
+600 1100
+
+---自分の答案-------------------------------------------------------------------------------------------------
+
+n, w = gets.split(" ").map(&:to_i)
+s = Array.new(n)
+n.times do |x|
+    f, f_m, a, a_m = gets.split(" ").map(&:to_i)
+    o = w - f
+    h = 0
+    if o%a == 0
+        h = o / a * a_m
+    elsif o%a != 0 && o/a == 0
+        h = a_m
+    else
+        h = o / a * a_m + a_m
+    end
+    if o < 0
+        s[x] = f_m
+    elsif o == 0
+        s[x] = f_m + a_m
+    elsif o > 0
+        s[x] = h + f_m
+    end
+end
+puts s.min.to_s + " " + s.max.to_s
+
+
+
