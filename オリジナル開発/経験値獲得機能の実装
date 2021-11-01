@@ -1,0 +1,39 @@
+遭遇したエラー
+witout id
+原因
+idを受け渡した設定を行いときはroutesの書き方が変わることがわかってんかった。
+https://pikawaka.com/rails/resources#member%E3%81%A8collection
+
+
+tasksコントローラーのcountアクション
+  def count
+    @task = Task.find(params[:id])
+    @task.user.total_experience += @task.experience_point
+    @task.save!
+  end
+ここでタスクの経験値をユーザーのトータル経験値に代入している
+
+ビューで値が代入しているか確認したところちゃんとデフォルトの0から増えている。
+view/tasks/count
+<%= @task.user.total_experience %>
+
+ユーザー詳細画面で確認すると0のままで数値が増えていない
+@task.save!
+countでふで保存する項目が違うかも
+@task.user.total_experience.save!に変更してみる
+
+integerをsaveメソッドすることはできないというエラーが発生。
+確かに今回保存したいのはタスクに紐づくユーザー情報だからいかに変更
+@task.user.save!
+これでユーザー詳細画面でもちゃんと合計された形で表示された。
+何を保存したいのか考えてメソッドを使うようにしよう。
+
+
+次に終了ボタンを押したらtaskのfinishedカラムをtureにして表示場所を
+未完成のところから完了済みに移動するように設定する。
+
+流れ：
+tasksコントローラーにfinishedとunfinishedアクションを定義する。
+それぞれのアクションにransackを使用して終了済みのものと未完のものだけを表示するように検索する。
+ビューのindexにそれぞれのアクションに飛べるリンクを設定する。
+完了済みの方から終了ボタンを消す。
