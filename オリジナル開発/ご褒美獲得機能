@@ -1,0 +1,113 @@
+#### 実装したい機能
+1, ユーザーがご褒美を投稿・閲覧・編集・削除できる機能。
+2, ユーザーのトータル経験値とご褒美獲得に必要な経験値を比較して獲得できるかを判断する。
+3, 獲得した場合はメッセージ表示とご褒美を獲得済みに移動させる。
+4, 獲得できない場合はメッセージを表示する。
+
+
+##### 実装方法
+1について
+・ご褒美モデルを作成する。
+テーブル設計は以下の形で行う。userとrewardは１対多の関係になる。
+Reward
+・title
+・detail
+・Required_point   integer, null: false
+・user_id          integer, null: false
+
+・Rewardsコントローラーの設計を行う。
+rails g contoroller model rewards index new show edit
+後はCRUD機能の実装なので省略
+１のタスクは完了。
+
+
+2, 3, 4について
+ご褒美一覧から「獲得する」ボタンを押したらユーザーのトータル経験値と必要経験値の比較を行うようにする。
+・rewardsコントローラーにjudgeアクションを定義する。
+def judge
+    reward = Reward.find(params[:id])
+    if reward.user.total_experience >= reward.required_point
+        redirect_to reward, notice: "ご褒美を獲得しました"
+    else
+        redirect_to reward, notice: "ご褒美はまだ獲得できません"
+    end
+end
+このアクションで必要経験値を満たしていたら獲得メッセージが表示されるようになる。
+
+・rewards/view/indexで獲得ボタンを設定する。
+<%= link_to '獲得する', judge_reward_path(reward)%>
+それぞれのご褒美ごとだから()で変数受けるようにする。
+
+・config/routes.rbでルーティングの設定を行う。
+  resources :rewards do
+    member do
+      get 'judge'
+    end
+  end
+個別のidごとにルーティングしたいのでidを使用する。
+
+・ご褒美獲得した場合は必要経験値をトータルからマイナスする。
+def judge
+    reward = Reward.find(params[:id])
+    if reward.user.total_experience >= reward.required_point
+    reward.user.total_experience -= reward.required_point
+    reward.user.save!
+    redirect_to reward, notice: "ご褒美を獲得しました"
+    else
+        redirect_to reward, notice: "ご褒美はまだ獲得できません"
+    end
+end
+必要経験値を引いた値を保存する。
+
+・獲得したご褒美は未獲得と区別できるようにする。
+rewardsテーブルに対してfinishedカラムを追加する。
+finished:boolean, nill false, default false
+contoroller/rewardsのjudgeアクションに以下を追加する。
+    reward.finished = true
+        reward.save!
+これで獲得時にfinishedカラムをtrueに変更できる。
+
+・完了と未完でviewを分ける。
+app/contoroller/rewardsのindexと新たにfinishedアクションを定義する。
+  def index
+    @q = Reward.where(finished: false).ransack(params[:q])
+    @rewards = @q.result(distinct: true)
+  end
+
+  def finished
+    @q = Reward.where(finished: true).ransack(params[:q])
+    @rewards = @q.result(distinct: true)
+  end
+app/views/rewards/finished.html.erb
+<h1>Rewards#index</h1>
+<%= link_to '未完', rewards_path%>
+<%= link_to '完了', finished_rewards_path%>
+<br>
+<% @rewards.each do |reward|%>
+<%= link_to reward.title, reward %> <br>
+<%= reward.detail %> <br>
+<%= reward.finished %> <br>
+<%= reward.required_point %> <br>
+<%= link_to '編集', edit_reward_path(reward)%>
+<%= link_to '獲得する', judge_reward_path(reward)%>
+<a href="/users/<%= reward.user.id%>"><%= reward.user.nickname%></a>
+<br>
+<br>
+<% end %>
+indexと同じものをfinishedのviewにも加える。
+
+config/routes.rbにも設定を加えて完成。
+  resources :rewards do
+    member do
+      get 'judge'
+    end
+    collection do
+      get 'finished'
+    end
+  end
+
+わかってない単語：
+optional: true
+judge_reward_path(reward)%> このカッコ内ってeachの受け取りであってるっけ？
+save!の！の違いもいまいちわかってない
+

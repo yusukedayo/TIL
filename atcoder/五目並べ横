@@ -1,0 +1,42 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+array = %w[O X]
+# array配列の中にOとXを代入している。
+result = 'D'
+# resultに引き分けを表すDを代入している。
+
+(1..5).each do # 5つの盤面全てに適用する。
+  string = gets.chomp.split('')
+# 5行に渡って入力される値を空白で分けて配列として受け取っている。
+  array.each do |a|
+    cnt = 0
+    # arrayのeachメソッド内でcunは定義されているのでOとXでそれぞれcntの中身は変わる
+    string.each { |s| cnt = cnt + 1 if s == a }
+    # 二重で繰り返し処理が行われている。string配列を1行ずつ取り出す。
+    # さらに一文字ずつ取り出してarrayのaと一致するかを確認。一致した場合はカウントを１増やす。
+    result = a if cnt >= 5
+  end
+end
+
+puts result
+
+(1..5).each do 
+    string = gets.chomp.split(' ')
+    array.each do |a|
+        cnt = 0
+        # arrayのeachメソッド内でcunは定義されているのでOとXでそれぞれcntの中身は変わる
+        string.each { |s| cnt = cnt + 1 if s == a }
+        result = a if cnt >= 5
+    end       
+    end
