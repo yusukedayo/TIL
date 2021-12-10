@@ -1,0 +1,48 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+* practice 質問アプリ完成させる。
+* オリジナルアプリのデザイン以外の部分完成させる。
+
+##### 今日のやること
+* 今週の進捗目標決め
+* QAアプリの指摘箇所修正
+* QAアプリ回答と見比べ
+* インスタクローン ログイン機能
+
+##### 今日の反省点
+
+#####  昨日よりも成長した部分
+
+
+・Gitflowの使い方について
+https://rfs.jp/server/git/03git/howto-git-flow.html
+・今のGitにはデフォルトでGitflowが入ってるので特にインストールなどは必要なかった。
+
+・Rubyのバージョン指定
+1, Gemファイルの該当箇所を変更するだけだと以下の結果になりバージョン変更が行えなかった。
+Your Ruby version is 3.0.2, but your Gemfile specified 2.6.4
+2, 調べるとrbenvというRubyのバージョンを切り替えるgemがあるのでインストールする。
+参考元 → http://capm-network.com/?tag=rbenv
+rbenvはwindowsでの使用方法がわからなかったので挫折
+sudoとかaptとか知らないコマンドがどんどん出てきてきつかった。Rubyとwindowsの互換性のなさを始めて痛感した。
+↓ubuntuをダウンロードしたらできないことはないかも
+https://www.ubuntulinux.jp/ubuntu
+
+・windows専用のrubyバージョン管理システムもあるのでこっち試してみる。
+https://techacademy.jp/magazine/18732
+uruのダウンロードもうまくいかない
+3, uruを使ってバージョンを変更することはできたがそこから元のバージョンに戻すことができなくなった。
+環境変数のpathをへたにいじってしまったことが原因で「ruby -v」「rails s」などのコマンドを打っても登録されていない
+というエラーに繋がってしまう。
+
+・データベースの選択について
+今まではデフォルトのSQLiteを使ってたけど課題ではmySQLを指定されてる。
+最も使われているデータベースはmySQLらしい。それぞれの違いを整理したい。
+https://products.sint.co.jp/topsic/blog/sqlite
+https://www.sejuku.net/blog/9021
+
+・アプリ削除の方法について
+https://qiita.com/nyanyamo/items/1469b7989db2d454dd94
+
+
+
