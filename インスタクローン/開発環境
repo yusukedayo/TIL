@@ -1,0 +1,38 @@
+
+### 開発手順
+#### 環境構築
+・git-flowをhomebrewで導入しGitフローでの開発フローとする( https://github.com/DaichiSaito/insta_clone/wiki/git-flow%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6 )
+
+・Rubyのバージョンは2.6.4とする(解答例が2.6.4なので。本来は新しいバージョンを使用すべき。)
+→windowsのPCを使用しているので専用のuruを使用してrubyのバージョンを変更する。
+
+・Railsのバージョンは5.2.6とする(解答例は5.2.3だがmimemagicのエラーが出るので5.2.6が望ましい)
+→rails newを行う前に先にgemfilesを作成し、そこでrailsをコメントアウトしてバージョンを指定する。
+
+・DBはMySQLとする
+→rails newの段階のoptionでデータベースを指定する。
+
+・turbolinkとcoffee-scriptは使わないようにする
+→rails newの段階のoptionでスキップできる
+
+・slim-railsを導入してビューテンプレートはslimを使う
+ERBよりも簡単にrubyのコードを書くことができる。
+gem slim-railsとhtml2slimをインストールする。
+
+
+・sorceryを導入してログイン機能を実装する
+
+・rubocopを導入してLintチェックを行う
+・.rubocop.ymlは以下をダウンロード・展開したものを使う。ファイル名の先頭に「.」をつけるのを忘れないこと。
+・rubocop.yml.zip
+
+・redis-railsを導入してセッションの管理方法をクッキーストアではなくredisにする
+
+https://www.sejuku.net/blog/58218
+・rails-18nを導入して国際化に対応する（メンタリングの都合でモデル名, カラム名のみ国際化対応することとする）
+・annotateを導入してモデルが作られるたびに自動的にスキーマ情報がファイルに記載されるようにする
+・better_errorsを導入してエラー画面を使いやすくする
+・binding_of_callerを導入してエラー画面を使いやすくする
+・pry-byebugを導入してデバッグ可能な状態にする
+・pry-railsを導入してデバッグ可能な状態にする
+・bootstrap material designを導入（gemだとうまく動かないのでyarnで導入）してビューを整える

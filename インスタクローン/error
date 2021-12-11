@@ -1,0 +1,27 @@
+
+・エラー内容
+rails s
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:29: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:35: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:35: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:44: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+Your Ruby version is 3.0.2, but your Gemfile specified 2.6.4
+
+・解決方法
+https://teratail.com/questions/332743
+
+
+
+・エラー内容
+C:\Users\yusuketsunemi\Desktop\instaclone>bundle exec erb2slim app/views/layout
+ArgumentError: Source and destination files can't be the same.
+  Use --trace for backtrace.
+
+・解決方法
+layoutsのs抜け エラーコードからもっと深刻な問題が発生してると思ったけどそうではなかった。
+Source and destination files can't be the same.
+destinationが行先って意味だからそれわかれば行先表す部分にスペルミスあることは気づけた。
+エラーコードを１つ１つ意味くみ取ること大事。
