@@ -1,0 +1,70 @@
+##### 今日のやること
+* QAアプリの指摘箇所修正
+* QAアプリ回答と見比べ
+
+
+- - -
+### QAアプリで貰った指摘①
+@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]
+このコードですけど、
+ @current_user = User.find_by(id: session[:user_id])if session[:user_id]
+これなっていない理由はなんでしょう？
+
+#### 考え方
+・||=とは何か
+    ・考え方はa = a + 1をa += 1で表すことができるのと同じ。
+    ・左辺がnilまたは未定義であったときに右辺の値を代入する演算式である。
+参考記事：https://www.tairaengineer-note.com/ruby-self-assignment-operator/
+
+・@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]で行われていること。
+    ・@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]を省略せずに表すと
+    @current_user = @current_user || User.find_by(id: session[:user_id])if session[:user_id]になる。
+    ・このコードの役割としては毎回user_idを探す手間を省くこと。１度ログインしていて@current_userにuser_idが格納されている場合は
+    @current_user = @current_userの時点でtrueが返されるので後ろの処理は行われない。これで時間の短縮になる。
+参考記事：https://qiita.com/aiandrox/items/f4215471f40325d69523
+
+
+#### 回答
+||=を使うことによって既にログインしているユーザーに対して余計な検索を書けないので素早い処理を行うことができるから。
+
+
+- - -
+#### QAアプリで貰った指摘②
+・session[:user_id]がnilの場合、どのような挙動になるでしょう？
+
+#### 考え方
+1, session[:user_id]がnilの場合はfind_byメソッドに対してnilが渡されます。
+2, find_byメソッドはfindメソッドと異なり検索結果がnilであってもエラーが発生しない。
+なので、@current_userの中にはnilが格納される。
+
+### 回答
+session[:user_id]がnilの場合は@current_userにnilが格納される。なので、ログインできていない状態になる。
+参考記事：https://qiita.com/tsuchinoko_run/items/f3926caaec461cfa1ca3
+
+
+- - -
+app/controllers/questions_controller.rb
+def update
+    question = Question.find(params[:id])
+    question.update!(question_params)
+updateではなく、update!になっているのには何か理由があります？
+
+
+updateとupdate!メソッドの違いは、結果の返し方が異なります。
+updateの場合、保存の成否をtrueかfalseで返します。それに対してupdate!は保存に失敗したときに例外を返します。
+
+複数のデータ更新を順次行うときに、トランザクションという機能を使うことがあります。
+その場合はupdate!を使用すると、例外の発生とともにロールバック処理が行われるのでupdateより便利です。
+
+
+・https://qiita.com/ozin/items/5968971c9d2b3ab0a84d
+saveメソッドの場合は保存の成功と失敗を true/false で返すのに対して、save!メソッドは保存を失敗した場合に例外を返します。
+つまり、save!を使えば例外をトリガーにしてロールバックなどの処理を行うことができるため、比較的使用頻度が高いかと思います。
+
+・https://qiita.com/ngron/items/4c319ae7340b72c7e566
+例外処理はちゃんとした書き方があるので今のコードだとupdate!で例外処理を発生させているのにその時にどうなるのかを書けていない。
+
+class QuestionMailer < ApplicationMailer
+    default to: -> {User.pluck(:email)},
+
+これで全ユーザーが宛先になるんでしたっけ？
