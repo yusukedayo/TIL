@@ -1,0 +1,53 @@
+##### 今日のやること
+* QAアプリの指摘箇所修正
+* QAアプリ回答と見比べ
+
+- - -
+・指摘内容
+app/controllers/questions_controller.rb
+def update
+    question = Question.find(params[:id])
+    question.update!(question_params)
+updateではなく、update!になっているのには何か理由があります？
+
+・考え方
+    ・updateとupdate!メソッドの違いについて
+    updateの場合、保存の成否をtrueかfalseで返します。それに対してupdate!は保存に失敗したときに例外を返します。
+    参考記事→ https://qiita.com/ozin/items/5968971c9d2b3ab0a84d
+    ・例外処理の書き方について
+    例外処理の書き方は以下のようにbeginとrescueで囲むようにする。
+    begin
+      10 / 0
+    rescue
+      p "0で割れません"
+    end
+    puts "こんにちは"
+    参考記事→ https://qiita.com/ngron/items/4c319ae7340b72c7e566
+・回答
+update!で書いているのにも関わらず例外処理のコードを書いていなかったので!の意味がなくなってしまっていた。
+
+・指摘内容
+class QuestionMailer < ApplicationMailer
+    default to: -> {User.pluck(:email)},
+これで全ユーザーが宛先になるんでしたっけ？
+
+
+2.3.3 メールを複数の相手に送信する
+1つのメールを複数の相手に送信することももちろん可能です (サインアップが新規に行われたことを全管理者に通知するなど)。これを行なうには、メールのリストを:toキーに設定します。メールのリストの形式は、メールアドレスの配列でも、メールアドレスをカンマで区切った文字列でも構いません。
+
+class AdminMailer < ApplicationMailer
+  default to: -> { Admin.pluck(:email) },
+          from: 'notification@example.com'
+
+  def new_registration(user)
+    @user = user
+    mail(subject: "New User Signup: #{@user.email}")
+  end
+end
+CC (カーボンコピー) やBCC (ブラインドカーボンコピー) アドレスを指定する場合にも同じ形式を使えます。それぞれ:ccキーと:bccキーを使います。
+
+めも
+.pluckメソッドは特定のカラムの値だけを取得したい場合に使う。
+User.pluck(:email) 今回だとUserモデルのemailカラムだけを取得することができる。
+
+->は無名関数
