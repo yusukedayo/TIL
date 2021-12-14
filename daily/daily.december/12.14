@@ -1,0 +1,115 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+
+
+##### 今日のやること
+* QAアプリの指摘箇所修正
+* QAアプリ回答と見比べ
+* インスタクローン課題１
+
+##### 実際にやったこと
+8:00~10:30 QAアプリの指摘箇所修正
+10:45~     QAアプリの指摘箇所修正(異常系の考慮)
+12:00      指摘箇所の修正については終了
+12:35~     QAアプリ回答と見比べ(主にコントローラ)
+16:00      コントローラー部分は何とか終了
+休憩
+17:10~     インスタクローン環境構築redis-railsの続き
+17:40      redis導入完了
+17:40      rails-18nを導入
+
+
+・flash.now[:danger]を表示する方法
+
+・エラーの分類と処理の仕方について
+https://qiita.com/jnchito/items/3ef95ea144ed15df3637
+
+・dependentのoptionはちゃんと入れてあげたほうがいいです！
+エラーは大きく２つに分けられる。業務エラーとシステムエラー。
+業務エラーはユーザーの間違えによって発生する（名前を必須で入れないといけないところを記入せずに投稿するなど）
+  保存メソッドの戻り値で成功と失敗を表現する。
+  メソッド内で例外をraiseして、呼び出し側でrescueする、というのはNG。
+  メソッドの呼び出し側は戻り値を必ずチェックする。チェックし忘れると処理の失敗が成功として扱われてしまう。
+  業務エラーの有無はモデルのバリデーションで検証し、エラー内容はモデルのerrorsに格納する
+システムエラーはユーザーによって解決することができないもの。（サーバーのダウンなど）
+  何もしない。Railsの共通処理に任せる。
+  ログへのエラー出力と、500エラー画面の表示はRailsが自動的にやってくれる。
+  明確な理由がない限り、自分でrescueしない。
+  ErrbitやBugsnagのようなエラー通知サービスを導入している場合も、システムエラーは通常自動的に処理されるはずなので、個別に通知メソッドを呼んだりしない。
+  データを保存するとき、「普通に考えると業務エラーは起こりえない場合」や「万一エラーが起きたら処理を中止したい場合」はsaveではなく、save!メソッドを使う。（create!やupdate!でも可）
+
+
+・QAapp 外部キー制約についてuser_idが二重になっているのはおかしい？？
+    原因：questionsテーブルを作るときにuser_idが必要だと思ってカラムを作った。
+    後から外部キーとして登録する必要があるからまた別にuser_idカラムを作成してしまった。
+    create_table "questions", force: :cascade do |t|
+        t.string "title", null: false
+        t.text "body", null: false
+        t.datetime "created_at", precision: 6, null: false
+        t.datetime "updated_at", precision: 6, null: false
+        t.integer "user_id", null: false
+        t.boolean "solved", default: false, null: false
+        t.index ["user_id"], name: "index_questions_on_user_id"
+      end
+    調査１：user_idが２つ登録されている今はデータどんな形で集められてるの？
+      id: 14,
+    title: "",
+    body: "",
+    created_at: Fri, 03 Dec 2021 12:43:32.229335000 UTC +00:00,
+    updated_at: Fri, 03 Dec 2021 12:43:32.229335000 UTC +00:00,
+    user_id: 14,
+    solved: false>]
+    データは問題なく保存されていた。
+    調査２:次に外部キーを追加したときのmigrationファイルを確認する
+    class AddUserIdToQuestions < ActiveRecord::Migration[6.1]
+    def up
+      execute 'DELETE FROM questions;'
+      add_reference :questions, :user, null: false, index:true
+    end
+
+    def down
+      remove_reference :questions, :user, index: true
+    end
+    end
+    ここでdownされているのでuser_idの重複なくデータが保存されていると考えられる。
+    よって１つのファイル内に以下の２つの記述があることは問題ない。多分カラムとそれが外部キーであることを表している？（これに関しては質問してみていいかも）
+    t.index ["user_id"], name: "index_questions_on_user_id"
+    t.integer "user_id", null: false
+
+・object.user_id == idについて
+  https://penguintech.hatenablog.com/entry/2021/04/11/154649
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+### やりたいこと
+questionsテーブルのUser_idに外部キーを設定してあげたい。
+
+
+### エラー内容
+以下のmigrationファイルをmigrateするとエラーが発生する。
+class AddUserIdKeyToQuestions < ActiveRecord::Migration[6.1]
+  def change
+    add_reference :questions, :user, foreign_key: true
+  end
+end
+
+SQLite3::SQLException: duplicate column name: user_id
+C:/Users/yusuketsunemi/Desktop/test/db/migrate/20211214002456_add_user_id_key_to_questions.rb:3:in `change'
+
+Caused by:
+ActiveRecord::StatementInvalid: SQLite3::SQLException: duplicate column name: user_id
+C:/Users/yusuketsunemi/Desktop/test/db/migrate/20211214002456_add_user_id_key_to_questions.rb:3:in `change'
+
+Caused by:
+SQLite3::SQLException: duplicate column name: user_id
+C:/Users/yusuketsunemi/Desktop/test/db/migrate/20211214002456_add_user_id_key_to_questions.rb:3:in `change'
+Tasks: TOP => db:migrate
+(See full trace by running task with --trace)
+
+### 解決策
+① 既存のuser_idカラムを削除する。
+エラーコードを読む限り原因はuser_idカラムが既に存在しているためなのでカラムの削除を行ってみる。
+カラムを削除して新たに追加することで問題は解決できた。
+  add_foreign_key "questions", "users"
