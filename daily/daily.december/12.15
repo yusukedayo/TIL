@@ -1,0 +1,113 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+
+##### 今日のやること
+* インスタクローン課題１
+
+### QAAアプリの回答と見比べ
+
+#### questions_contoroller
+・orderメソッドについて
+```
+モデル名.order("並び替えたいカラム名")
+User.order("name")
+```
+でnameカラムがアルファベット順orあいうえお順に並び替えられる。
+また、以下のようにDESCを指定することによって逆順に並び変えることもできる。
+モデル名.order("カラム名 DESC")
+ちなみにDESC（降順）の逆はASC（昇順）です。
+デフォルトではASCになっているのでASCで指定することはあまりありません。
+降順は階段を上から降りてくるイメージ、昇順は階段を登っていくイメージです。
+上から降りてくるので大きい数字から、階段を登っていくので小さい数字からということになりますね。
+
+```ruby
+app/contoroller
+def index
+    @q = Question.ransack(params[:q])
+    @questions = @q.result(distinct: true).order(created_at: :desc).page(params[:page]).per(5)
+    # この場合はdescで降順になっているので日付の大きいもの、つまり最新の投稿が上から表示されるようになっている。
+end
+```
+参考記事：
+https://pikawaka.com/rails/order
+
+----
+
+
+def create
+    # @question = current_user.questions.build(question_params)
+    if @question.save
+      #User.where.not(id: current_user.id).each do |user|
+        # QuestionMailer.with(user: user, question: @question).question_created.deliver_later
+      end
+      redirect_to question_path(@question), success: '質問を作成しました'
+    else
+      #flash.now[:danger] = '失敗しました'
+      render :new
+    end
+  end
+
+・buildメソッドについて
+親モデルに属する子モデルのインスタンスを新たに生成したい場合に使うメソッド。（親モデルと子モデルは、アソシエーション設定あり）
+外部キーに値が入った状態でインスタンスが生成できる。
+newメソッドと特に違いはないがアソシエーション設定がされていることがわかるので読み取りやすいコードになる？
+@question = current_user.questions.build(question_params)
+https://qiita.com/tsuchinoko_run/items/d671ea840bc0bfa90186
+
+----
+
+・whereメソッドについて
+User.where(kind: 1)
+この書き方でkindが1のユーザーを全て取得することができます。
+findとの違いは条件に合う全てのレコードを取得できることにあります。
+    not
+    User.where.not(kind: 1)
+    kindカラムが１以外の全てのユーザーを取得することができる。
+
+    or
+    User.where('kind = ? or name = ?', 0, 'yamada')
+    これでkindが0かnameが'yamada'のユーザーをすべて取得することができます。
+    whereに渡す値が複数の場合は、クエスチョンマークの書き方を使用しましょう
+
+    and
+    User.where('kind = ? and name = ?', 0, 'yamada')
+    kindが0かつ、nameが'yamada'のユーザーを全て取得することができます。
+
+    比較
+    User.where("kind > ?", 1)
+    kindが１よりも大きいユーザーをすべて習得することができる。
+
+User.where.not(id: current_user.id).each do |user|
+        QuestionMailer.with(user: user, question: @question).question_created.deliver_later
+    end
+このコードはアクションを行おうとしているユーザー以外のidを持つユーザーを取得している。
+そして、そのユーザーに対してメイラーが起動しているので自分以外のユーザーに対してメールを送る機能である。
+参考文献:https://www.sejuku.net/blog/13363
+
+----
+・Mailer.withとMailer.creationの違いについて
+現場railsではMailer.creationが使われており、railsガイドではMailer.withの方が使われていた。
+しかし、両社の違いについて書かれているサイトは見つけられなかった。
+QuestionMailer.with(user: user, question: @question).question_created.deliver_later
+
+----
+・flash.now[:danger] = '失敗しました'について
+
+・flash: リダイレクトする時
+viewに表示するためにはapplication.html.erbに
+・flash.now: renderする時add_flash_types :success, :info, :warning, :dangerを追記する必要がある。
+参考記事:https://qiita.com/dice9494/items/2a0e92aba58a516e42e9
+・redirect_to
+データ更新/削除が必要な場合＝controllerの処理が必要
+・render
+ログインや入力形式に失敗した場合など＝ただエラーを表示させるだけ
+参考記事:https://qiita.com/morikuma709/items/e9146465df2d8a094d78
+
+#### answers_contoroller
+@answer = current_user.answers.build(answer_params.merge(question_id: params[:question_id]))
+mergeとは？
+
+
+
+
+
