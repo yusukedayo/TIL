@@ -1,10 +1,3 @@
-#### 今週の目標
-* 勉強時間 24時間以上。
-
-##### 今日のやること
-* インスタクローン課題１
-
-### QAAアプリの回答と見比べ
 
 #### questions_contoroller
 ・orderメソッドについて
@@ -105,19 +98,4 @@ viewに表示するためにはapplication.html.erbに
 
 #### answers_contoroller
 @answer = current_user.answers.build(answer_params.merge(question_id: params[:question_id]))
-・mergeメソッドはハッシュを連結させる。なので、今回の場合はanswer_paramsにquestion_idを追加している。
-ここでわざわざquestion_id足さないといけないの？テーブルにもともと用意されてないのかな
-
-#### related_to_question
- User.related_to_question(@answer.question).distinct.each do |user|
-        next if user.id == current_user.id || user.mine?(@answer.question)
-
-
-        AnswerMailer.with(user: user, question: @answer.question).answer_created.deliver_later
-      end
-      redirect_to question_path(params[:question_id]), success: '回答しました'
-
-・distinctについて:https://qiita.com/toda-axiaworks/items/ad5a0e2322ac6a2ea0f4
-
-
-
+mergeとは？

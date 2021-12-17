@@ -1,0 +1,74 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+
+##### 今日のやること
+・mySQLサーバーが起動しなかったエラーを解決する。
+・QAアプリ回答例との比較
+・インスタクローンログイン機能
+
+##### 今日やったこと
+10:30~ my SQLのエラー解決
+11:20 エラー解決
+11:20~ QAAアプリの回答と見比べ
+14:30 まで
+
+
+
+#### やりたいこと
+MySQLを使ってrailsアプリのサーバーを接続する。
+#### エラー内容
+Can't connect to MySQL server on 'localhost' (10061)
+#### 試したこと
+1, MySQLがうまく起動していないことが原因と考えられるので起動コマンドを打ち込んでみる。
+参考記事:https://prog-8.com/docs/mysql-env-win
+2, 起動させることでエラー内容が変わった。
+Access denied for user 'root'@'localhost' (using password: YES)
+passwordがMySQLで設定していたものじゃなかったからこのエラーが発生したと考えられる。
+3, C:\Users\yusuketsunemi\Desktop\instaclone\config\database.ymlでパスワードを変更すると以下のエラーに変わった。
+ActiveRecord::NoDatabaseError at /
+Unknown database 'instaclone_development'
+エラーの内容はrails db:createをしていなかったから発生した。アプリ作成の際にはrails newをした後にdbも作成することも忘れないように注意。
+参考記事:https://rails-ambassador.herokuapp.com/debugs/NoDatabaseError
+4, データベースを作成したら無事にエラーを解決することができた！
+
+
+・Mailerの.withについて
+question_contorollerのMailer部分において回答例の方では.with(user: user, question: @question)を使って変数を取得。
+現場railsの方では.creation_email(@question)の部分で変数の取得。
+2つに特に大きな違いはないが後者の方が最近は一般的である。
+```ruby
+# 回答例
+\app\controllers\questions_controller.rb
+QuestionMailer.with(user: user, question: @question).question_created.deliver_later
+# 自分の回答
+      QuestionMailer.creation_email(@question).deliver_now
+```
+
+
+・validatesの記述ができていなかった。
+#### バリデーションの意義
+バリデーションは、正しいデータだけをデータベースに保存するために行われます。
+たとえば、自分のアプリケーションで、すべてのユーザーには必ず電子メールアドレスとメーリングリストアドレスが必要だとします。
+正しいデータだけをデータベースに保存するのであれば、モデルレベルでバリデーションを実行するのが最適です。
+
+\app\models\question.rb
+class Question < ApplicationRecord
+  belongs_to :user
+  has_many :answers, dependent: :destroy
+
+  validates :title, presence: true, length: { maximum: 30 }
+  validates :body, presence: true
+end
+参考記事:https://railsguides.jp/active_record_validations.html
+https://qiita.com/h1kita/items/772b81a1cc066e67930e
+
+
+・モデルのscopeとは
+モデルのscopeとは複数のクエリをまとめたメソッド
+モデルの中でrelated_to_questionを定義して簡単に呼び出すことができるようにしている。
+
+\app\models\user.rb
+scope :related_to_question, ->(question) { joins(:answers).where(answers: { question_id: question.id }) }
+\app\controllers\answers_controller.rb
+User.related_to_question(@answer.question).distinct.each do |user|
+参考記事:https://qiita.com/ozin/items/24d1b220a002004a6351

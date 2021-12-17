@@ -25,3 +25,17 @@ layoutsのs抜け エラーコードからもっと深刻な問題が発生し�
 Source and destination files can't be the same.
 destinationが行先って意味だからそれわかれば行先表す部分にスペルミスあることは気づけた。
 エラーコードを１つ１つ意味くみ取ること大事。
+
+・やりたいこと
+redisを導入したい。参考記事は以下。
+https://www.sejuku.net/blog/58218
+
+・エラー内容
+rails sをしたときに以下のエラーが発生する。
+Rails::Application is abstract, you cannot instantiate it directly. (RuntimeError)
+
+・解決方法
+ここに書かれているやり方で解決できた。
+Rails::Application.routes.draw doをRails.application.routes.draw doに変更。
+railsのバージョンが古かったので参考記事をコピペするとエラーが発生したと考えられる。
+参考文献:https://stackoverflow.com/questions/44345660/running-rake-routes-on-rails-5-giving-instantiation-error
