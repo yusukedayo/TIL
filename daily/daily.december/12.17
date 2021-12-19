@@ -20,6 +20,10 @@ MySQLを使ってrailsアプリのサーバーを接続する。
 Can't connect to MySQL server on 'localhost' (10061)
 #### 試したこと
 1, MySQLがうまく起動していないことが原因と考えられるので起動コマンドを打ち込んでみる。
+サーバー開始コマンド:net start mysql57
+ログインコマンド:mysql --user=root --password
+ログアウトコマンド:exit;
+サーバー終了コマンド:net stop mysql57
 参考記事:https://prog-8.com/docs/mysql-env-win
 2, 起動させることでエラー内容が変わった。
 Access denied for user 'root'@'localhost' (using password: YES)
