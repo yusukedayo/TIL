@@ -1,0 +1,28 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+
+##### 今日のやること
+・QAアプリ回答例との比較 
+・インスタクローンログイン機能
+
+##### 今日学んだこと
+・  <%= question.body.truncate(100) %>
+truncateは文字の切り捨てを行ってくれている。例：「今日はいい天気ですね。こんな…」
+index表示では長い文章を全て表示するわけにはいかないのでtruncateを使って詳細をクリックした人だけが全文を読めるようにする。
+
+
+### エラー
+・次に以下のエラーが発生
+RuntimeError at /
+Your ExecJS runtime Duktape isn't supported by autoprefixer-rails,
+please switch to Node.js (V8) or mini_racer (V8)
+
+・bootstrap material designを導入したらエラーが発生。
+参考にした記事:https://qiita.com/sasakura_870/items/38e17d95d9497cf81413
+
+・mini_racer (V8)のgemを変更したらエラー内容が↓に変わった。
+SassC::SyntaxError at /
+Error: File to import not found or unreadable: ~bootstrap-material-design/scss/bootstrap-material-design.
+        on line 1:1 of app/assets/javascripts/stylesheets/application.scss
+>> @import '~bootstrap-material-design/scss/bootstrap-material-design';
+   ^
