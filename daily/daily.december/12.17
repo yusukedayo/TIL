@@ -67,12 +67,4 @@ end
 https://qiita.com/h1kita/items/772b81a1cc066e67930e
 
 
-・モデルのscopeとは
-モデルのscopeとは複数のクエリをまとめたメソッド
-モデルの中でrelated_to_questionを定義して簡単に呼び出すことができるようにしている。
 
-\app\models\user.rb
-scope :related_to_question, ->(question) { joins(:answers).where(answers: { question_id: question.id }) }
-\app\controllers\answers_controller.rb
-User.related_to_question(@answer.question).distinct.each do |user|
-参考記事:https://qiita.com/ozin/items/24d1b220a002004a6351
