@@ -1,0 +1,70 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+
+##### 今日のやること
+・QAアプリ回答例との比較 30分
+・インスタクローンCRUD機能 ３時間
+・Material Design for Bootstrapの導入
+
+##### 今日学んだこと
+・Material Design for Bootstrapの導入について
+#### 躓いた点
+https://qiita.com/sasakura_870/items/38e17d95d9497cf81413
+↑のサイトを参考にして導入を行ったがRailsのバージョンが異なるためうまく反映されなかった。
+また、MDBを導入する過程でjQueryの導入も行ったがそれもうまく読み込めていなかったためsorceryのログアウトでもエラーが発生してしまった。
+
+#### 原因
+1, バージョンの違い
+参考にしていたサイトとバージョンが異なるため同じやり方では指定のファイルを読み込んではくれなかった。
+
+2, yarnとgemで二重にインストールを行ってしまっていた。
+参考にした記事ではすべてをyarnでインストールしていたが
+実際に回答のファイルで導入されていたのはMaterial Design for Bootstrapだけだった。
+yarnとgemで両方インストールしてしまったことがMaterial Design for Bootstrapを導入できなかった原因と考えられる。
+
+#### 正しい導入方法
+回答例とみけたさんメモを参考にするとうまく導入することができた。
+導入手順（みけたさんメモ）
+yarnとは(Bootstrap Material Designについて)
+application.html.slimにて、application.cssと.jsを読み込む
+application.scssファイルにて、@import形式にて必要なcssを指定する
+application.jsファイルにて、//= require形式読み込むJSファイルを指定する
+
+1, yarnをインストールする。
+yarn add bootstrap-material-design
+
+2, gemのインストール
+gem 'font-awesome-sass', '~> 5.4.1'
+gem 'jquery-rails'
+gem 'popper_js'
+
+3, application.html.erbで以下のコードが記入されていることを確認する。
+```
+app\views\layouts\application.html.erb
+<%= stylesheet_link_tag    'application', media: 'all' %>
+<%= javascript_include_tag 'application' %>
+```
+
+4, application.scssでimportを記入する。
+自分の場合はデフォルトではapplication.cssがあったのでそのファイルを削除し、新しくapplication.scssファイルを作成した。
+```
+app\assets\stylesheets\application.scss
+@import 'bootstrap-material-design/dist/css/bootstrap-material-design';
+@import 'font-awesome-sprockets';
+@import 'font-awesome';
+```
+
+5, application.jsで読み込むJSファイルを指定する
+```
+app\assets\javascripts\application.js
+//
+//= require jquery3
+//= require popper
+//= require rails-ujs
+//= require activestorage
+//= require_tree .
+//= require bootstrap-material-design/dist/js/bootstrap-material-design.js
+```
+
+migrationファイルの消し方
+https://qiita.com/KKDDD/items/b1158caebe3788eb39c8
