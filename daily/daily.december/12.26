@@ -1,0 +1,31 @@
+
+##### 今日のやること
+・QAアプリ コメント頂いたところの確認
+
+##### 今日学んだこと
+・ルーティングのネストについて
+ネストすることのメリット
+・URLの階層構造ができる
+・関係性のあるもの同士を紐づけることができる(とあるツイートとそれに紐づくコメントなど)
+
+Rails.application.routes.draw do
+
+  resources :questions do
+    resources :answers, only: [:create]
+  end
+  get "/question/solved", to: "questions#solved"
+  get "/question/unsolved", to: "questions#unsolved"
+end
+↑のコードを以下のように変更することができる。
+resources :questions do
+    collection do
+      get :solved
+      get :unsolved
+    end
+
+    member do
+      post :solve
+    end
+    resources :answers, only: [:create, :destroy]
+  end
+参考記事:https://techtechmedia.com/routing-nest-rails/
