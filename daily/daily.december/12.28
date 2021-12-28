@@ -1,0 +1,25 @@
+##### 今日のやること
+・QAアプリ コメント頂いたところの確認
+・他の人のQAアプリをレビューする
+
+##### 今日学んだこと
+・current_userの使い方について
+ def edit
+    @question = Question.find(params[:id])
+end
+この状態だと投稿した人以外でも編集することが可能いなってしまっている。
+ def edit
+    @question = current_user.questions.find(params[:id])
+end
+にすることによって関連付けされたユーザーだけが投稿を編集できるようになる。
+update・destroyに関しても同じく。
+
+・N + 1問題について
+N + 1問題とは、必要以上にSQLが発行されてしまい、動作が悪くなってしまう問題のこと
+
+includesメソッドとは、アソシエーションの関連付けを事前に取得してN +1問題を解決してくれるメソッドのこと
+QAアプリだと以下のコードでN+1問題が発生している。
+app\views\questions\index.html.erb
+<% @questions.each do |question| %>
+    <p><%= question.user.nickname %></p>
+<% end %>
