@@ -1,0 +1,28 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+
+##### 今日のやること
+・login_logout機能の追加
+・インスタクローンCRUD機能 ３時間
+・QAアプリのレビューと学んだことまとめ
+
+##### 今日学んだこと
+・エラーメッセージの書き方
+モデルのvaridationに違反しているときにメッセージを表示してくれるもの。
+https://qiita.com/ryuuuuuuuuuu/items/1a1e53d062bff774d88a
+
+・flashメッセージの表示方法について
+https://qiita.com/d0ne1s/items/2eccf6b22e7ed1d25925
+
+・ログイン前後でヘッダーの表示を変える
+\app\views\layouts\application.html.slimで以下のようなif文を書くことによって表示させる内容を変更させる。
+    - if logged_in?
+      = render 'shared/header'
+    - else
+      = render 'shared/before_login_header'
+    = render 'shared/flash_messages'
+    = yield
+これでログイン前のユーザーには余計な場所に飛べないようにしてる。
+
+・特定のブランチをクローンする方法
+https://qiita.com/icoxfog417/items/5776e0f0f758f0f0e48a
