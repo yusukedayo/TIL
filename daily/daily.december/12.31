@@ -1,0 +1,16 @@
+#### 今週の目標
+* 勉強時間 24時間以上。
+
+##### 今日のやること
+・login_logout機能の追加
+
+##### 今日学んだこと
+・pull requestしたら差分が5000以上になってしまったので解決したい。
+原因は以下の記事に書いてあるようにvenderにgemが追加されておりそれをgitignoreに登録していなかったため
+大量の差分が発生してしまっていると考えられる。
+https://techtechmedia.com/vender-bundle-solution/
+gitコマンドでgit対象外にすることが大事っぽい
+https://qiita.com/ratovia/items/9ca7c8ab34f2c31e466d
+
+・根本的な解決としてはrails newした後にgit add .する前に.gitignoreファイルにvender/boundelrを記入すること。
+config\database.ymlもgitignoreに追加しないとMysqlのパスワードが見られてしまう。
