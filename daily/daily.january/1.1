@@ -1,0 +1,94 @@
+
+・今日学んだこと
+####slim
+・slimとは
+slimとはerbと同じくrubyを埋め込むことができるテンプレートエンジン。
+htmlよりもコードを早く綺麗に、そして非常にシンプルに作ることができる。
+・導入方法
+1, gem slim-railsとhtml2slimをインストールする。
+slim-railsがslimをhtmlに変換してくれる。html2slimは既存のerbをslimに変換してくれる。
+2, bundle exec erb2slim app/views app/views -dをコマンドで実行。
+-dオプションを付けることで既存のerbファイルも削除することができる。
+・基本文法
+    ・<>がいらない
+    ・<%= %> →  =
+    ・<% %> → -
+    ・コメント → /
+    ・id指定 → #
+    ・class指定 → .
+参考資料:https://qiita.com/ngron/items/c03e68642c2ab77e7283
+
+#### sorcery
+・sorceryとは
+deviceなどと同じくログイン機能のためのgem。特徴はシンプルだからカスタムしやすいところ。
+詳しくは→instaclone\login_logout
+
+#### annotate
+・annotateとは
+各モデルのスキーマ情報をファイルの先頭もしくは末尾にコメントとして書き出してくれるGem
+・導入方法
+1, gem 'annotate'をインストールする。
+2, bundle exec rails g annotate:installで設定ファイルが作成される。
+3, 手動で行う場合はbundle exec annotate --modelsコマンドを打ち込む。
+参考記事:https://qiita.com/koki_develop/items/ae6b5f41c18b2872d527
+
+#### rubocopを導入してLintチェックを行う
+・rubocopとは
+Rubyの静的コード解析を実行するgem。インデントや長すぎるコードを指摘してくれる。
+・導入方法
+1, gem rubocopをインストールする。
+```
+Gemfile
+group :development do
+    gem 'rubocop', require: false
+end
+```
+2, .rubocop.ymlファイルを作成する。
+RuboCopの設定ファイルです。対象となるファイルの種類だったり、チェックする構文のデフォルトを変えたりと,自分たちのコーディングスタイルに沿った現実的なルールをこのファイルで適用します。
+3, 基本コマンドを使って操作する。
+```
+$ rubocop
+#解析して結果をターミナルに吐き出す。
+$ rubocop --help
+# ヘルプを参照できます。
+$ rubocop --lint( または rubocop --rails )
+# チェック規則は以下の4つに分類されますが --lint がLintのみチェック、 --rails がRailsのみチェック
+# -------------------------------------------------------------------------
+# 1 Style   (スタイルについて)
+# 2 Lint    (誤りである可能性が高い部分やbad practiceを指摘する)
+# 3 Metrics (クラスの行数や1行の文字数などに関して)
+# 4 Rails   (Rails特有のcop)
+$ rubocop --auto-gen-config 
+# .rubocop_todo.ymlに警告を一旦退避する。
+# .rubocop.ymlに "inherit_from: .rubocop_todo.yml" と書くのを忘れないでください。
+$ rubocop --auto-correct 
+# 直せる箇所を自動で修正してくれます。(最初は使わないで警告されたコードを眺めてみることをお勧めします。)
+```
+参考記事:https://qiita.com/tomohiii/items/1a17018b5a48b8284a8b
+
+#### yarn
+JavaScriptのパッケージマネージャのこと。
+パッケージマネージャとは、コンピュータに何のソフトウェアがインストールされたかを記録し、
+新しいソフトウェアのインストール・新しいバージョンへのソフトウェアの更新・以前インストールしたソフトウェアの削除を容易に行えるようにするプログラムです。
+
+#### database.yml
+・database.ymlとは
+Railsにおけるデータベースの設定ファイル。
+Railsアプリケーションを作成すると自動的に生成され、デフォルトではSQLiteを使用する前提で作成される。
+・使用例
+ファイル内に以下のようなコードがあるので今回だとmysqlに接続するためにパスワードの記入が必要。
+```
+development:
+  adapter: mysql2
+  encoding: utf8
+  database: sample_mysql_development
+  pool: 5
+  username: root
+  password:
+  host: localhost
+```
+参考記事:https://qiita.com/ryouya3948/items/ba3012ba88d9ea8fd43d
+
+#### migrationファイルとは
+マイグレーションファイルは、データベースを生成する際の設計図になるものです。 
+また、マイグレーションファイルを実行することで、記述した内容に基づいたデータテーブルが生成されます。
