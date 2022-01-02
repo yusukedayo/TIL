@@ -1,0 +1,43 @@
+
+##### 今日のやること
+・インスタクローンログイン機能 完成(1時間) done
+・インスタCRUD機能(2時間)
+・QAアプリの比較(２時間)
+・就活対策(2時間)
+
+##### 感想
+・手元で動かして確かめる習慣をつける。
+・コードレビューで他の人のコメント見るだけになっちゃってるので自分でコメントできる部分をしっかり探すようにする。
+
+##### 今日学んだこと
+・redirect_toとredirect_backについて
+  ・redirect_toとは、redirect_toは指定したURLに遷移させることができるメソッドです。
+  ```ruby 
+  redirect_to "http://www.pikawaka.com"
+  #_pathを使用してURLを指定する。
+  redirect_to root_path
+  # アクションを指定する
+  redirect_to action: :new
+  # コントローラーとアクションを指定する
+  redirect_to  controller: :users, action: :show
+  ```
+  ・redirect_backとは、直前のページにリダイレクトさせるもの。
+
+#### 検索機能(Ransack)
+・検索条件を絞る
+modelにて制限を書けていないとこちらが意図していない要素からも検索をすることができてしまう。この状態ではセキュリティ的に問題がある。
+なので、model上で検索していいカラムの範囲を制限する。
+```
+app/models/検索機能を付けたいモデル名.rb
+#ransackable_attributesは検索対象のカラムを指定してくれる。デフォルトでは全てのカラムが指定されている。
+def self.ransackable_attributes(auth_object = nill)
+  %w[name created_at]
+  # 検索できるカラムをnameとcreated_atに制限している。
+end
+
+# 参照できる関連テーブル。デフォルトは関連付く全てのテーブル。空にすることで検索できなくする。
+def self.ransackable_associations(auth_object = nil)
+  []
+end
+```
+参考:現場rails
