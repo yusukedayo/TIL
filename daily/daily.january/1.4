@@ -1,0 +1,16 @@
+
+メモ
+・gitflowの流れ
+pullrequestをマージした後はちゃんとローカルにpullする。そうじゃないとmergeが反映されていない状態で進んでしまう。
+
+・postテーブルを作るときはuserテーブルとつなげることを前提として作るようにする。
+
+・sorceryで使えるメソッドまとめる。以下の記事を参考にして
+https://blog.aiandrox.com/posts/tech/2020/01/18/
+
+・flashタイプを以下のように分ける意味はなに？
+メッセージを指定するならタイプは指定しなくてもいいんじゃないかなと思った。
+  add_flash_types :success, :info, :warning, :danger
+
+・回答例はpostsコントローラーに対してだけbefore_action:login_requiredしてたけど現場railsはapplicationで実行してた。
+どっちの方がいいんだろ。
