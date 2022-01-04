@@ -1,3 +1,5 @@
+##### 今日のやったこと
+・インスタCRUD機能(3時間)
 
 メモ
 ・gitflowの流れ
@@ -14,3 +16,70 @@ https://blog.aiandrox.com/posts/tech/2020/01/18/
 
 ・回答例はpostsコントローラーに対してだけbefore_action:login_requiredしてたけど現場railsはapplicationで実行してた。
 どっちの方がいいんだろ。
+
+・エラー
+エラー内容
+ id: nil,
+ body: "test",
+ images: nil,
+ created_at: nil,
+ updated_at: nil,
+ user_id: nil>
+
+予測
+  def create
+    #@post = Post.new(post_params)
+    if @post.save
+      redirect_to posts_url, success: '投稿しました'
+      # _urlは何を作っているのか
+    else
+      flash.now[:danger] = '失敗しました'
+      render :new
+    end
+  end
+@postに対してuserと関連付けたインスタントを生成できていなかったことが原因
+
+対策   
+def create
+  @post = current_user.posts.build(post_params)
+  if @post.save
+    redirect_to posts_url, success: '投稿しました'
+    # _urlは何を作っているのか
+  else
+    flash.now[:danger] = '失敗しました'
+    render :new
+  end
+end
+@post = current_user.posts.build(post_params)に変更することでuser_idを関連付けることができる。
+
+
+・エラー内容
+ArgumentError: When assigning attributes, you must pass a hash as an argument.
+
+該当コード
+#User.all.each do |user|
+#    user.posts.create!(
+#        post = user.posts.create(body: Faker::Hacker.say_something_smart, remote_images_urls: %w[https://picsum.photos/350/350/?random https://picsum.photos/350/350/?random])
+#    )
+#end
+
+お手本コード
+puts 'Start inserting seed "posts" ...'
+User.limit(10).each do |user|
+  post = user.posts.create(body: Faker::Hacker.say_something_smart, remote_images_urls: %w[https://picsum.photos/350/350/?random https://picsum.photos/350/350/?random])
+  puts "post#{post.id} has created!"
+end
+
+予測
+postとuserのどっちでエラーが発生しているのか確認
+
+postの方でうまくいかなかった
+
+解決
+お手本コードの方を下手にコピペしていたのがよくなかった。
+お手本はuser.post.createをpostに代入しているが、自分はそれを行っていないのに関わらずuser.posts.create!()のカッコ内に
+post = をコピペしてしまうという謎のミスをしていた。
+コードの役割を考えることが大切。今回であればuser.posts.create!()のカッコ内に入るべきはカラムの内容だけであるべき。
+それがわかっていたらエラーの原因はすぐに特定できた。
+
+該当コード場所の特定→コードの役割を把握→原因の把握の３ステップで考えるようにする。
