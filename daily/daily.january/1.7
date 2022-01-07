@@ -1,0 +1,25 @@
+##### 今日のやること
+・インスタクローン コメント機能実装 2時間
+・インスタクローン CRUDまとめる     1時間 done 16:14
+・インスタクローン いいね機能概要まとめる  2時間
+・QAアプリ  修正２時間
+
+##### メモ
+・meta[name="viewport"とは
+    meta[name="viewport" content="width=device-width, initial-scale=1.0"]
+    ・meta viewportは、スマホやタブレットのモバイル端末で最適にWeb表示させるため（Google推奨のレスポンシブWebデザイン適用時）に必要な欠かせないhtmlタグです。
+    ・width=device-width
+        meta viewport利用時に追加できる「width=device-width」は、表示領域の幅で、端末画面の幅に合わせる指定ができる、meta要素のcontent属性の属性値です。
+    ・initial-scale：ページにアクセスしたときの初期ズーム。 1.0はズームしません。
+参考記事:https://seolaboratory.jp/48581/
+・ポートフォリオレビュー会の動画見て勉強する
+https://tech-essentials.work/movies
+
+・コメント機能 js.slimはJSではない？
+https://github.com/KozakuraRyuuichi/trn_insta_clone/pull/6#discussion_r433299695
+
+・ここちゃんと手元で動かして挙動確認する。
+= link_to comment_path(comment), class: 'mr-3', method: :delete, data: {confirm: '本当に削除しますか？'}, remote: true do
+
+・ここがよくわからんので調べる
+$はDOM構造を読み終わってから発火するという意味を持つ。
