@@ -1,0 +1,15 @@
+##### 今日のやること
+・インスタクローン コメント機能まとめ 1時間 done
+・インスタクローン いいね機能概要まとめる  2時間
+・QAアプリ  修正２時間
+
+##### メモ
+・gemのバージョンエラー
+https://qiita.com/blackpeach7/items/fafdee0a564119db5e9d
+
+・not_authenticated
+  # sorceryのメソッド（デフォルトでは、required_loginがfalseの場合にはルートパスにアクセスさせる）
+  # 上書きすることにより、指定のパス自体は変わらないが、「ログインしてください」というメッセージを出すことができる
+  def not_authenticated
+    redirect_to login_path, warning: 'ログインしてください'
+  end
