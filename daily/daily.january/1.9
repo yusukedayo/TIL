@@ -1,0 +1,60 @@
+##### 今日のやること
+・インスタクローン いいね機能実装  2時間
+・インスタクローン フォロー機能まとめる 2時間
+・インスタクローン CRUD機能のまとめ
+
+##### メモ
+
+  def create
+    @post = Post.find(params[:post_id])
+    # @postの中にparamsで受け取ったpost_idのpostが１つ格納される。
+    current_user.like(@post)
+    # userモデルで定義したlike_posts << postがcurrent_userに対して行われ、like_postsに@postが追加される。
+  end
+
+  def destroy
+    @post = Like.find(params[:id]).post
+    # Likeモデルの中からparamsで受け取ったidの物が呼び出され、その投稿が@postに格納されている。
+    current_user.unlike(@post)
+    # like_posts.destroy(@post)が行われ、like_postsの中から引数の@postがdestroyされる。
+  end
+end
+ここの挙動を手元で確認する。
+
+
+## バリデーションについて
+### バリデーションとは
+Railsは、Active Recordオブジェクトを保存する直前にバリデーションを実行する。
+その時、バリデーションでエラーが発生するとオブジェクトは保存されない。
+
+### valid?メソッド
+バリデーションを手動で行うメソッド。
+実行するとバリデーションが実行されオブジェクトにエラーがないとtrue、エラーがあればfalseが返される。
+また、valid?メソッドを使用するとそのインスタンスがerrorsメソッドを使用した時にエラーメッセージを確認することができるようになる。
+```
+[1] pry(main)> @user.valid?
+=> false
+[2] pry(main)> @user.errors
+=> #<ActiveModel::Errors:0x007fdcb2db3620
+ @base=
+  #<User:0x007fd522d08870
+   id: nil,
+   name: "管理人",
+   job_id: nil,
+   sex: "男",
+   age: 55,
+   tall: 167.0,
+   weight: 45.0,
+   created_at: nil,
+   updated_at: nil>,
+ @details={:job=>[{:error=>:blank}]},
+ @messages={:job=>["must exist"]}>
+```
+保存できない理由が不明確な時に使うことで@messages={:job=>["must exist"]}>のように明確なエラー原因を示してくれる。
+
+### invalid?メソッド
+valid?と逆のチェックを行う。
+オブジェクトでエラーが発生した場合はtrueを、そうでなければfalseを返す。
+
+
+
