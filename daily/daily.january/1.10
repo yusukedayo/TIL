@@ -1,0 +1,15 @@
+##### 今日のやること
+・インスタクローン フォロー機能まとめる 2時間
+・インスタクローン CRUD機能のまとめ
+
+##### メモ
+・update.js.slim
+```ruby
+- if @comment.errors.present?
+  | alert("#{@comment.errors.full_messages.join('\n')}");
+    # エラーがある場合、alert（JS）によりポップアップウインドウを表示する。エラーメッセージを全て出力し、それぞれ改行して表示する。
+- else
+  | $("#comment-#{@comment.id}").html("#{j render('comments/comment', comment: @comment)}");
+  | $("#comment-edit-modal").modal('hide');
+  #comment-1などのidが付与されている部分をJSで置き換える。その場合、_comment.slim.htmlをrenderする。
+  ```
