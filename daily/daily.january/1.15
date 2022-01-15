@@ -1,0 +1,11 @@
+##### 今日のやること
+・インスタクローン フォロー機能
+
+##### メモ
+・class_nameオプションを使うことによってUserモデルをFollowing,Followerに分ける。
+```ruby
+class Relationship < ApplicationRecord
+    belongs_to :following, class_name: "User"
+    belongs_to :follower, class_name: "User"
+end
+```
