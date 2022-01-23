@@ -1,0 +1,148 @@
+## swiperの導入
+・Swiperとは
+スライダー（カルーセル）が作れるJavaScriptライブラリです。
+しかもPCでもスマホでも使えて、レスポンシブ対応可能！
+
+・参考記事
+https://garigaricode.com/swiper/
+https://qiita.com/miketa_webprgr/items/0a3845aeb5da2ed75f82
+
+・導入方法
+導入の方法は以下の３つに分けられる。ここでは3番目の方法で導入する。
+> ・CDN（クラウド上に公開されているCSSとJSを適用させる）
+> ・ファイルをダウンロードして、愚直にCSSとJSを適用させる
+> ・NPMというJSのパッケージマネージャ（RubyでいうところのGemを管理するBundlerのようなもの）
+>   Yarnという類似のパッケージマネージャーを使うことも可能です
+yarnからの導入に関しては以下の記事が詳しく書いてくれている。
+https://qiita.com/ken_ta_/items/bdf04d8ecab6a855e50f
+
+1, yarnでswiperをダウンロードする。
+yarn自体はinstallされていることが前提。
+ターミナルでyarn add swiperを行い、yarn installする。これで必要ファイルがnode_modulesファイルに生成される。
+```
+
+2, 導入↓ファイルを読み込めるように設定を行う。
+application.jsとapplication.scssにそれぞれ追加する。
+swiperがver5の時とファイルのパスが異なるためエラーに注意。
+```
+app/assets/javascript/application.js
+
+//= require swiper/swiper-bundle.js
+//= require swiper.js
+# 順番を間違えると動かなくなるので注意
+```
+```
+app/assets/javascript/application.js
+@import 'swiper/swiper-bundle';
+```
+
+3, config/initializers/assets.rbの設定を確認する。
+導入したnode以下のファイルを読み込むようにしてくれている。
+```ruby
+config/initializers/assets.rb
+Rails.application.config.assets.paths << Rails.root.join('node_modules')
+```
+
+4, app\assets\javascripts\swiper.jsを新しく作成し、スライダー機能を各クラスに適用させる。
+```js
+$(function() {
+    new Swiper('.swiper-container', {
+        // スライドの仕方を指定できる。fade, coverflow,flipなどたくさんの種類がある。
+        effect: 'slide',
+        // カーソルが手の掴むアイコンに変わる。
+        grabCursor: true,
+        // ページネーションを付けてくれている。
+        pagination: {
+            el: '.swiper-pagination',
+        },
+        // ナビボタン(ページ移動時の)を付けてくれている。
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    })
+});
+```
+
+5, viewを実装する。
+クラス名を指定のものにして記述する。
+```
+app/veiws/controller/index.html.slim
+  = link_to post_path(post) do
+    .swiper-container
+      .swiper-wrapper
+        - post.images.each do |image|
+          .swiper-slide
+            = image_tag image.url, class: 'card-img-top'
+      .swiper-pagination
+```
+
+
+
+
+
+・遭遇したエラー
+//= require swiper/js/swiper.js
+//= require swiper.js
+これだとエラー発生
+couldn't find file 'swiper/js/swiper.js' with type 'application/javascript'
+Checked in these paths: 
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/config
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/images
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/javascripts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/stylesheets
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/jquery-rails-4.4.0/vendor/assets/javascripts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/actioncable-5.2.6/lib/assets/compiled
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/activestorage-5.2.6/app/assets/javascripts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/actionview-5.2.6/lib/assets/compiled
+  C:/Users/yusuketsunemi/Desktop/instaclone2/node_modules
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/font-awesome-sass-5.4.1/assets/stylesheets
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/font-awesome-sass-5.4.1/assets/fonts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/popper_js-2.9.3/assets/javascripts
+
+に変更したら解決した
+//= require swiper/swiper-bundle.js
+//= require swiper.js
+
+
+
+・CSSの読み込みでも似たようなエラーが発生した
+couldn't find file 'swiper/js/swiper.js' with type 'application/javascript'
+Checked in these paths: 
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/config
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/images
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/javascripts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/app/assets/stylesheets
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/jquery-rails-4.4.0/vendor/assets/javascripts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/actioncable-5.2.6/lib/assets/compiled
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/activestorage-5.2.6/app/assets/javascripts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/actionview-5.2.6/lib/assets/compiled
+  C:/Users/yusuketsunemi/Desktop/instaclone2/node_modules
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/font-awesome-sass-5.4.1/assets/stylesheets
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/font-awesome-sass-5.4.1/assets/fonts
+  C:/Users/yusuketsunemi/Desktop/instaclone2/vendor/bundle/ruby/2.6.0/gems/popper_js-2.9.3/assets/javascripts
+先ほどと同様にコードを以下のように変更すると解決された。
+@import 'swiper/swiper-bundle';
+
+swiper.jsの部分でこの書き方だとうまくswipeできなかった。
+$(function() {
+    new Swiper('.swiper-container', {
+        pagination: {
+            el: '.swiper-pagination',
+        },
+    })
+})
+こっちにしたらうまく動いた。シンプルに上はpagenationしか設定されていないからのような気がする。
+$(function() {
+    new Swiper('.swiper-container', {
+        effect: 'flip',
+        grabCursor: true,
+        pagination: {
+            el: '.swiper-pagination',
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    })
+});

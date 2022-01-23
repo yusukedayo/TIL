@@ -1,0 +1,36 @@
+・FontAwesomeとは
+アイコンを簡単に表示できるようにしてくれる。
+
+・導入方法
+1, gemfileにgemを追加し、bundle installを行う。
+gem 'font-awesome-sass'
+
+2, /app/assets/stylesheets/application.scssを編集。
+```
+@import "font-awesome-sprockets";
+@import "font-awesome";
+// 順番間違えないように注意
+```
+
+3, 公式ページから使用したいアイコンを選びviewに表示する。
+slimファイルの場合は以下のように書く。
+```
+p
+  |
+    test
+  = icon 'far', 'surprise'
+/<p>
+/  test
+/  <i class="far fa-surprise"></i>
+/</p>
+```
+
+
+
+
+・参考記事
+https://qiita.com/koki_73/items/fa6d31a3b54a84d19dcf
+
+https://qiita.com/OneRoomBoy-TK/items/b837f438a49e70b29991
+
+

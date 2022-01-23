@@ -1,0 +1,244 @@
+
+
+投稿のCRUD機能を作ってください done 
+ユーザーとcrud機能を結びつける done
+ユーザーがログインしてないと操作できないようにする（新規登録は除く)  done
+ユーザーとポストのシードファイルを作る done
+その際fakerを使ってダミーテキストを生成する done
+画像のアップロードにはcarrierwaveを使用する done
+image_magickを使用して、画像は横幅or縦幅が最大1000pxとなるようにリサイズする done
+画像は複数枚アップロードできるようにする done
+Swiper使って画像をスワイプできるようにする done
+諸々のアイコンにはfontawesomeを使用する 
+
+・テーブル設計
+要件
+    ユーザーは任意の投稿をすることができる
+    ユーザーは自分の投稿したものを編集・削除することができる
+    ユーザーは投稿の詳細を見ることができる
+    image_magickを使用して、画像は横幅or縦幅が最大1000pxとなるようにリサイズする
+    画像は複数枚アップロードできるようにする
+    Swiper使って画像をスワイプできるようにする
+    ユーザーはニックネームとアバター画像を登録できる
+Postsテーブル
+    avatar:string
+    body:string:null:false
+
+・コントローラー設計
+投稿ページを表示する        get     /posts/new      posts#new
+投稿詳細を表示する          get     /posts/show     posts#show
+投稿をする                 post     /posts/create   posts#create
+投稿を編集する             post    /posts/update    posts#update
+投稿を削除する             delete  /posts/destroy   posts#destroy
+投稿の一覧を表示する        get    /posts/index     posts#index
+
+## CRUD機能
+1, モデルの作成
+rails g model モデル名 属性名:データ型
+でモデルを作成する。
+
+2, コントローラーとビューの作成
+rails g contoroller posts index show new edit
+コントローラーと同時にアクション名も設定することによって画面のひな形も作成してくれる。
+よって、コントローラーを作成するときはどんなアクションが必要なのかも同時に考える必要がある。
+コントローラーの作成と同時にconfig/routes.rbでルーティングが設定される。CRUD機能の場合は
+デフォルトの個別設定からresources :tasksに変更することで一括でルーティングを管理できる。
+また、root to: 'tasks#index'を設定るることでデフォルト画面をrailsのものから変更できる。
+
+3, 新規登録機能の実装
+# フォームもちゃんと書いてコピペで実装できるようにする。
+・新規登録画面のためにnewアクションを設定する。
+def new
+    @task = Task.new
+end
+newアクション上ではTaskモデルから新しいオブジェクトを生み出して@taskのインスタンス変数に代入することで
+ビューに対してモデルのデータを受け渡すことを可能にしている。
+・newアクションのビューファイルで投稿フォームを作成する。
+フォームでは、何を・どこに・どのように・どんなinputで送るかが定義されている。
+どこのURLに
+どのようなメソッドで
+どのようなパラメータを送るか
+keyとvalueは何か
+フォームの種類は何か
+HTMLのinputで指定する
+text_fieldなどがある
+実は20種類以上もある
+<%= form_with model: @task, local: true do |f| %>
+フォームの詳しい書き方はここ見てね
+https://tech-essentials.work/course_outputs/201
+<%= f.submit nill, class: 'btn-primary' %>
+このform_withメソッドがフォームに必要なHTMLを出力してくれる。つまり簡略してフォームを記述する役割を担ってくれている。
+model: @taskの部分でモデルを引数として受け取ることによってモデルに関連したフォームを生成することができる。
+
+4, createアクションの実装
+createアクションでは「登録フォームから送られてきたデータをデータベースに保存して一覧画面に移動」を行う。
+app/contorolers/tasks_contoroller/rb
+def create
+  task = Task.new(task_params)
+  task.save!
+  redirect_to tasks_url
+end
+
+private
+# クラスの外から呼び出すことを制限している。
+
+def task_params #想定していないデータを受け取らないための処理
+  params.require(:task).permit(:name, :description)
+  #paramsメソッドは投稿された入力フォームからデータを取り出すメソッド。
+  #requireメソッドで受け取るパラメータ群を、permitメソッドで利用可能なパラメータ名を指定
+end
+
+・登録ボタンを押す
+登録ボタンを押すとtasksコントローターのcreateアクションを処理するPOST型のHTTPリクエストがwebサーバーを介して
+アプリに送信される。それに従いcreateアクションが処理され、task_paramsによって指定された情報のみがフォームから
+取り出されてsave!メソッドによってデータベースに保存される。
+保存後はredirectメソッドによって新たにtasksコントローラーのindexアクションを処理するGET型のリクエストが生成され
+一覧画面が表示される。
+
+4, 一覧画面の表示
+### 指定の場所をクリックしたらshowアクションに飛ぶ機能を付ける
+・indexアクションではビューで使用したい全てのタスクのデータを取得してインスタンス変数へと格納する。
+そのためにTaskモデルに対してallメソッドを行っている。
+app/contorolers/tasks_contoroller.rb
+def index
+  @tasks = Task.all
+end
+・indexのビューで@taskに格納した情報をeachメソッドを使用して1つずつタスクを表示する。
+app/contorolers/tasks/index.erb
+<% @tasks.each do |task| %>
+<%= task.name%>
+<%= task.created_at%>
+
+5, 詳細画面の表示
+・指定されたidのタスクのみを表示できる機能を実装する。
+app/contorolers/tasks_contoroller.rb
+def show
+  @task = Task.find(params[:id])
+end
+findメソッドは対象オブジェクトの中から引数に指定したものと一致するものを取り出すことができる。
+今回の場合はタスクが記録されているTaskモデルの中から(params[:id])と一致するものを@taskに格納している。
+ここでの(params[:id])はHTTPリクエストから得られるidが格納されている。一覧画面にそれぞれのタスクにリンクを張る。それが機能する。
+・showのビューにおいてタスクの詳細を表示する。
+app/views/tasks/show.html.erb
+<%= @task.id %>
+<%= @task.name %>
+<%= @task.discription %>
+<%= @task.created_at %>
+<%= @task.updated_at %>
+
+6, 編集機能を実装する。
+・既に登録されている情報を変更してデータベースに保存する。
+編集画面を表示するeditアクションと情報を更新するupdateアクションが必要。
+app/contorolers/tasks_contoroller.rb
+def edit
+ @task = Task.find(params[:id])
+end
+# 変更を行いたいtaskのみをビューに受け渡すためfindメソッドの引数でidを受け取っている。
+def updated
+  task = Task.find(params[:id])
+  task.update!(task_params)
+  redirect_to tasks_url
+end
+app/views/edit.erb
+表示内容はnewと全く一緒になる。
+### _formの書き方もまとめるようにする
+<%= form_with model: @task, local: true do |f| %>
+フォームの詳しい書き方はここ見てね
+https://tech-essentials.work/course_outputs/201
+<%= f.submit nill, class: 'btn-primary' %>
+
+7, 削除機能を実装する。
+・指定されたidを受け取りTaskオブジェクトをデータベースから取得し、destroyメソッドによって
+データベースからタスクレコードを破壊する。
+app/contorolers/tasks_contoroller.rb
+def destory
+  task = Task.find(params[:id])
+  task.destory
+  redirect_to tasks_url
+end
+
+### UserとCRUD機能を結びつける
+1, rails g migration AddUserToPosts
+作成されたmigrationファイルを以下のように編集し、rails db:migrateを行う。
+これで外部キー制約付きでUserとCRUD機能を繋げることができる。
+```
+class AddUserToPosts < ActiveRecord::Migration[5.2]
+  def up
+    execute 'DELETE FROM posts'
+    add_reference :posts, :user, null: false, index:true, foreign_key: true
+  end
+
+  def down
+    remove_reference :posts, :user, index:true
+  end
+end
+```
+2, modelでassociationの設定を行う。
+1人のユーザーが複数のpostを持つのでmodels/user.rbにhas_many :postsを、models/post.rbにbelong_to :userをそれぞれ記入する。
+```
+class Post < ApplicationRecord
+    belong_to :user
+end
+class User < ApplicationRecord
+  has_many :posts
+end
+```
+3, CRUD機能をユーザー限定で操作できるようにする。
+・current_user.models.find(params[:id])の省略
+show, edit, update, destroyで同じ記述があるため１つにまとめる。
+まとめることで変更があった場合に１つの処理で変更を行えるので便利。
+```ruby
+app/contorollers/tasks_contoroller.rb
+# ここでshow,edit,update,destroyのアクションを行う前にset_taskアクションを行うように設定する。
+before_action :set_task, only: [:show, :edit, :update, :destroy]
+
+# before_actionがあるのでコードを記述する必要はない。
+def show
+end
+
+def edit
+end
+
+def update
+  if @question.update(question_params)
+    redirect_to question_path(@question), success: '質問を更新しました'
+  else
+    flash.now[:danger] = '失敗しました'
+    render :edit
+  end
+end
+
+def destroy
+  @question.destroy!
+  redirect_to questions_path, success: '質問を削除しました'
+end
+
+private
+# 意図せずに呼ばれることを防ぐためprivate以下で記述する。
+def set_task
+  @task = current_user.models.find(params[:id])
+end
+```
+・ログインしていないと操作を行えないようにする
+コントローラーに以下のコードを追加する。(コントローラーが複数ある場合はcontoroller/application.rbに書いた方が良い思う)
+before_action :require_login, only: %i[new create edit update destroy]
+require_loginはSorceryのメソッド。
+ログインをしていないユーザーをアクション単位で弾く。
+アクセスしようとしたURLをセッションに格納し、not_authenticatedを実行するメソッド。
+not_authenticated
+先ほどのrequire_login内で、このメソッドも実行される。
+デフォルトではredirect_to root_path（自動的にルートに飛ばされる）と定義されているが、カスタマイズしたい場合はapplication_controllerで上書きをする
+class ApplicationController < ActionController::Base
+    add_flash_types :success, :info, :warning, :danger
+    
+    def not_authenticated
+        redirect_to login_path, warning: 'ログインしてください'
+    end
+end
+
+
+・N + 1問題の解決
+発行されるSQLのクエリ数を減らしている。
+  def index
+    @posts = Post.all.includes(:user)
+  end

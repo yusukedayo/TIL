@@ -1,0 +1,35 @@
+・ユーザーとポストのシードファイルを作る
+seedファイルというのは簡単に言うと初期データのこと。
+1, railsではseedファイルに入れておきたいデータをdb/seeds.rbに記述していきます。
+シードファイルに↓を記述してrails db:seedをコマンドすればおけ
+```ruby
+# １つのユーザーデータを作りたいとき
+User.create!(
+   email: 'test@test.com',
+   name: 'テスト太郎',
+   image: File.open('./app/assets/images/test.jpg')
+)
+# 複数のデータを一気に作りたいとき
+  5.times do |n|
+    User.create!(
+      email: "test#{n + 1}@test.com",
+      name: "テスト太郎#{n + 1}",
+      image: File.open('./app/assets/images/test.jpg')
+    )
+  end
+# ユーザーに関連した記事などを作成したいとき
+User.all.each do |user|
+  user.articles.create!(
+    title: 'タイトル',
+    body: 'テキストテキストテキストテキスト'
+  )
+end
+```
+2, userとpostなど複数のデータを作成したい場合はdb/seedsフォルダを作成しdb/seeds/user.rb, db/seeds/post.rbをそれぞれ作成しコードを追加する。
+db/seeds.rbファイルには以下のコードを追記する。
+```ruby
+require './db/seeds/users'
+require './db/seeds/posts'
+```
+参考記事:https://qiita.com/takehanKosuke/items/79a66751fe95010ea5ee
+

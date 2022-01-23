@@ -141,8 +141,8 @@ app/controllers/user_sessions_controller.rb
     if @user
       redirect_back_or_to(new_user_path, notice: 'ログインに成功しました')
       # フレンドリーフォワーディング
-      # 保護されたページにアクセスしようとすると、問答無用で自分のプロファイルページに移動させられてしまいます。別の言い方をすれば、ログオンしていないユーザーが編集ページにアクセスしようとしていたなら、ユーザーがサインインした後にはその編集ページにリダイレクトされるようにするのが望ましい動作です。
-
+      # 保護されたページにアクセスしようとすると、問答無用で自分のプロファイルページに移動させられてしまいます。
+      # 別の言い方をすれば、ログオンしていないユーザーが編集ページにアクセスしようとしていたなら、ユーザーがサインインした後にはその編集ページにリダイレクトされるようにするのが望ましい動作です。
     else
       flash.now[:alert] = 'ログインに失敗しました'
       render :new
@@ -160,3 +160,33 @@ app/controllers/user_sessions_controller.rb
   delete 'logout', to: 'user_sessions#destroy' 
 
 
+また、if: -> { new_record? || changes[:crypted_password] }で、new_record?の部分については、
+インスタンスが新規に作成されるものかどうかを判定するActive Recordのメソッドの一つであり、オブジェクトがすでにDBにあるかを確認できる。
+if: -> については、条件付きバリデーションのオプションに当たるもので、特定の条件でバリデーションを行なうべきである場合に使う。
+(Railsガイド参照)
+
+
+つまり、if: -> { new_record? || changes[:crypted_password] }で、ユーザーがパスワード以外のプロフィール項目を(メールアドレスや名前)を更新したい場合に、パスワードの入力を省略できるようになる。
+
+最近Active Recordにnew_record?というmethodがあることを知りました
+これは名前から想像がつくように、Objectが新規のものかそれとも既存のものかを判断してくれます
+
+[4] pry(main)> user = User.first
+  User Load (0.5ms)  SELECT  `users`.* FROM `users` ORDER BY `users`.`id` ASC LIMIT 1
+=> #<User:0x000000000b169878
+ id: 1,
+ email: "te@email.com",
+ crypted_password: "$2a$10$VCfk8b87By8tmNvf9rdyAO32CmaroOTI5SVzb0lw4K6mC5gLCwHrm",
+ salt: "DQx1eK5BRRbSN7Gh-q3h",
+ username: "test",
+ created_at: Fri, 31 Dec 2021 17:10:24 JST +09:00,
+ updated_at: Fri, 31 Dec 2021 17:10:24 JST +09:00>
+[5] pry(main)> user.changes[:email]
+=> nil
+[6] pry(main)> user.email = "test@example.com"
+=> "test@example.com"
+[7] pry(main)> user.changes[:email]
+=> ["te@email.com", "test@example.com"]
+[8] pry(main)>
+
+「偽」とはfalseかnilだけで、他は0や空文字列も含めてすべて「真」となります。

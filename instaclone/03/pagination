@@ -1,0 +1,69 @@
+### ページネーションとは
+投稿一覧ページなどを複数のページに分割して表示させること。
+トップページで全ての投稿を表示させると、データの読み込みに時間がかかるので、ページネーションを使う。
+
+### 参考記事
+https://qiita.com/ryota21/items/29fa282745afb1474059
+https://qiita.com/tomo_k09/items/b9242b6795f867a1844f
+
+### 導入方法
+1, gemをインストールする
+gemfileにgem 'kaminari'を追加してundle installする。これで必要ファイルがnode_modulesファイルに生成される。
+
+2, 設定ファイルを作成する。
+ターミナルでrails g kaminari:configを実行する。
+デフォルトから変更したい場合はコメントアウトして編集する。
+```
+# frozen_string_literal: true
+
+Kaminari.configure do |config|
+  # config.default_per_page = 25
+  1ページあたりの表示件数(デフォルトは25レコード）
+  # config.max_per_page = nil
+  1ページあたりの最大表示件数(デフォルトはnil。つまり無限）
+  # config.window = 4
+  現在のページから、左右何ページ分のリンクを表示させるか(デフォルトは4件)
+  # config.outer_window = 0
+  最初(First)と最後(Last)のページから、左右何ページ分のリンクを表示させるか(デフォルトは0件)
+  # config.left = 0
+  最初(First)のページから、何ページ分のリンクを表示させるか(デフォルトは0件)
+  # config.right = 0
+  # config.page_method_name = :page
+モデルに追加されるページ番号を指定するスコープの名前:page by default
+  # config.param_name = :page
+  ページ番号を渡すために使用するパラメータ名(デフォルトは:page)
+  # config.max_pages = nil
+  # config.params_on_first_page = false
+end
+```
+
+3, kaminariのviewファイルを生成
+ターミナルでrails g kaminari:views 〇〇(ダウンロードしたいviewテンプレート)を実行。
+Bootstrap4を指定するとそのデザインのファイルが生成される。
+
+4, controllerにpageメソッドを追加する。
+ページネーションを実装したいアクションを持つcontrollerにpageメソッドを追加する。
+pageメソッドを呼び出すことにより、引数に指定したページに表示するデータだけを取得できる。
+```ruby
+def index
+    @posts = Post.page(params[:page])
+end
+
+5, viewファイルの修正
+該当箇所に以下のコードを付け足す。
+```
+<%= paginate @articles %>
+```
+
+6, ページネーションの日本語化
+```
+config/locales/views/paiginate.ja.yml
+ja:
+  views:
+    pagination:
+      first: "最初"
+      last: "最後"
+      previous: "«"
+      next: "»"
+      truncate: "..."
+```

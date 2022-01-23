@@ -1,0 +1,12 @@
+
+https://instagramtestclone.herokuapp.com/ | https://git.heroku.com/instagramtestclone.git
+
+CLEARDB_DATABASE_URL: mysql://bde97730357d31:63141f4f@us-cdbr-east-05.cleardb.net/heroku_41dbd4e8503167b?reconnect=true
+DATABASE_URL:         'mysql2://yusuke:yusuke0217@host/mysql?reconnect=true'
+DB_HOSTNAME:          'host'
+DB_NAME:              'mysql'
+DB_PASSWORD:          'yusuke0217'
+DB_PORT:              '3306'
+DB_USERNAME:          'yusuke'
+
+'mysql2://yusuke:yusuke0217@host/mysql?reconnect=true'

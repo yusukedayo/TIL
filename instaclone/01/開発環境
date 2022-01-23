@@ -1,0 +1,259 @@
+### 開発手順
+$ bundle init
+$ Gemfile内の # rails部分のコメントアウトを外し、Railsのバージョンを課題で指定された通りにする。
+$ bundle install --path vendor/bundle
+$ bundle exec rails new . -d mysql --skip-coffee --skip-turbolinks
+ここで.gitignoreにvendor/bundlerとconfig\database.ymlを追加してgitの対象外にする。
+(ここで対象外にしないとpull requestのfield changedが1000を超えてしまって大変なことになる。)
+$ git add .
+$ git commit -m "initial commit"
+$ git flow init (全部EnterでOK。git flowについてはこちらを参照）
+$ git push --all （これでmasterとdevelopが一気にリモートにプッシュされる）
+$ git flow feature start 01_hogehogebranch
+
+
+#### 環境構築
+turbolinkとは
+Turbolinksとは、Rails4から正式導入された画面遷移を高速化させるライブラリ。
+Turbolinks自体はJavaScriptのライブラリとして提供されていますが、Railsでは利用しやすいようにGemとしてデフォルトで組み込まれている。
+redisとは
+Redisはメモリ上にデータを保存する超高速のデータベースの一種、データをメモリ上に保存するタイプのインメモリ型のKVS(Key Value Store)のことを指す。
+KVSはキーとバリューのシンプルなデータを保存するものである。なので、高速に動作を行うことができる。
+
+i18nとは
+国際化を行うためのもの。
+tメソッド…configファイルで登録した文字を翻訳する。
+```
+config/locales/ja.yml
+ja:
+  fruits:
+    apple: "りんご"
+    orange: "みかん"
+
+view
+<%= t("fruits.apple") %>
+<%= t("fruits.orange") %>
+```
+lメソッド…日付や時刻を表すために使う。
+```
+config/locales/ja.yml
+ja:
+  time:
+    current: "%Y年%m月%d日"
+
+view
+<%= l(Time.current) %>
+```
+参考記事:https://qiita.com/tiktak/items/a70ef7940fa4710f37cb
+
+
+・git-flowをhomebrewで導入しGitフローでの開発フローとする
+参考資料:https://github.com/DaichiSaito/insta_clone/wiki/git-flow%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6
+
+
+・Rubyのバージョンは2.6.4とする(解答例が2.6.4なので。本来は新しいバージョンを使用すべき。)
+→windowsのPCを使用しているので専用のuruを使用してrubyのバージョンを変更する。
+ok
+
+・Railsのバージョンは5.2.6とする(解答例は5.2.3だがmimemagicのエラーが出るので5.2.6が望ましい)
+→rails newを行う前に先にgemfilesを作成し、そこでrailsをコメントアウトしてバージョンを指定する。
+ok
+
+・DBはMySQLとする
+→rails newの段階のoptionでデータベースを指定する。
+ok(導入はできたけど他と何が違うのかとどうやって操作するのかはわかってない)
+参考記事:https://prog-8.com/docs/mysql-env-win
+
+・turbolinkとcoffee-scriptは使わないようにする
+→rails newの段階のoptionでスキップできる
+ok
+
+####slim
+・slimとは
+slimとはerbと同じくrubyを埋め込むことができるテンプレートエンジン。
+htmlよりもコードを早く綺麗に、そして非常にシンプルに作ることができる。
+・導入方法
+1, gem slim-railsとhtml2slimをインストールする。
+slim-railsがslimをhtmlに変換してくれる。html2slimは既存のerbをslimに変換してくれる。
+2, bundle exec erb2slim app/views app/views -dをコマンドで実行。
+-dオプションを付けることで既存のerbファイルも削除することができる。
+3, config/application.rbにてデフォルトで生成されるファイルをslimに固定する。
+```ruby
+module App
+  class Application < Rails::Application
+    config.generators.template_engine = :slim #slimに変更
+  end                                                                                                                                                                     
+end
+```
+・基本文法
+    ・<>がいらない
+    ・<%= %> →  =
+    ・<% %> → -
+    ・コメント → /
+    ・id指定 → #
+    ・class指定 → .
+参考資料:https://qiita.com/ngron/items/c03e68642c2ab77e7283
+
+#### sorcery
+・sorceryとは
+deviceなどと同じくログイン機能のためのgem。特徴はシンプルだからカスタムしやすいところ。
+詳しくは→instaclone\login_logout
+
+#### annotate
+・annotateとは
+各モデルのスキーマ情報をファイルの先頭もしくは末尾にコメントとして書き出してくれるGem
+・導入方法
+1, gem 'annotate'をインストールする。
+2, bundle exec rails g annotate:installで設定ファイルが作成される。
+3, 手動で行う場合はbundle exec annotate --modelsコマンドを打ち込む。
+参考記事:https://qiita.com/koki_develop/items/ae6b5f41c18b2872d527
+
+#### rubocopを導入してLintチェックを行う
+・rubocopとは
+Rubyの静的コード解析を実行するgem。インデントや長すぎるコードを指摘してくれる。
+・導入方法
+1, gem rubocopをインストールする。
+```
+Gemfile
+group :development do
+    gem 'rubocop', require: false
+end
+```
+2, .rubocop.ymlファイルを作成する。
+RuboCopの設定ファイルです。対象となるファイルの種類だったり、チェックする構文のデフォルトを変えたりと,自分たちのコーディングスタイルに沿った現実的なルールをこのファイルで適用します。
+3, 基本コマンドを使って操作する。
+```
+$ rubocop
+#解析して結果をターミナルに吐き出す。
+$ rubocop --help
+# ヘルプを参照できます。
+$ rubocop --lint( または rubocop --rails )
+# チェック規則は以下の4つに分類されますが --lint がLintのみチェック、 --rails がRailsのみチェック
+# -------------------------------------------------------------------------
+# 1 Style   (スタイルについて)
+# 2 Lint    (誤りである可能性が高い部分やbad practiceを指摘する)
+# 3 Metrics (クラスの行数や1行の文字数などに関して)
+# 4 Rails   (Rails特有のcop)
+$ rubocop --auto-gen-config 
+# .rubocop_todo.ymlに警告を一旦退避する。
+# .rubocop.ymlに "inherit_from: .rubocop_todo.yml" と書くのを忘れないでください。
+$ rubocop --auto-correct 
+# 直せる箇所を自動で修正してくれます。(最初は使わないで警告されたコードを眺めてみることをお勧めします。)
+```
+参考記事:https://qiita.com/tomohiii/items/1a17018b5a48b8284a8b
+
+#### yarn
+JavaScriptのパッケージマネージャのこと。
+パッケージマネージャとは、コンピュータに何のソフトウェアがインストールされたかを記録し、
+新しいソフトウェアのインストール・新しいバージョンへのソフトウェアの更新・以前インストールしたソフトウェアの削除を容易に行えるようにするプログラムです。
+
+#### database.yml
+・database.ymlとは
+Railsにおけるデータベースの設定ファイル。
+Railsアプリケーションを作成すると自動的に生成され、デフォルトではSQLiteを使用する前提で作成される。
+・使用例
+ファイル内に以下のようなコードがあるので今回だとmysqlに接続するためにパスワードの記入が必要。
+```
+development:
+  adapter: mysql2
+  encoding: utf8
+  database: sample_mysql_development
+  pool: 5
+  username: root
+  password:
+  host: localhost
+```
+参考記事:https://qiita.com/ryouya3948/items/ba3012ba88d9ea8fd43d
+
+#### migrationファイルとは
+マイグレーションファイルは、データベースを生成する際の設計図になるものです。 
+また、マイグレーションファイルを実行することで、記述した内容に基づいたデータテーブルが生成されます。
+
+#### schema.rbとは
+DBの構造を示すデータ。
+DBのスキーマをそのままキャプチャしたもの。最新のDBの状態が反映されている。
+
+#### git flowとは
+複数人で開発するためのgitにおける分岐モデルのことを指す。
+master:
+プロダクトとしてリリースする用のブランチ。リリースしたらタグ付けする。
+※このブランチ上での作業は行わない
+develop:
+開発用ブランチ。コードが安定し、リリース準備ができたらreleaseへマージする。
+※このブランチ上での作業は行わない
+feature:
+機能の追加用。developから分岐し、developにマージする。
+hotfixes:
+リリース後の緊急対応（クリティカルなバグフィックスなど）用。
+masterから分岐し、masterにマージすると共にdevelopにマージする。
+release:
+プロダクトリリースの準備用。
+リリース予定の機能やバグフィックスが反映された状態のdevelopから分岐する。
+リリース準備が整ったら、masterにマージすると共にdevelopにマージする。
+参考記事:https://cloudsmith.co.jp/blog/efficient/2020/08/1534208.html
+
+#### BMD導入方法
+yarnとは(Bootstrap Material Designについて)
+application.html.slimにて、application.cssと.jsを読み込む
+application.scssファイルにて、@import形式にて必要なcssを指定する
+application.jsファイルにて、//= require形式読み込むJSファイルを指定する
+
+1, yarnをインストールする。
+yarn add bootstrap-material-design
+
+2, gemのインストール
+gem 'font-awesome-sass', '~> 5.4.1'
+gem 'jquery-rails'
+gem 'popper_js'
+
+3, application.html.erbで以下のコードが記入されていることを確認する。
+```
+app\views\layouts\application.html.erb
+<%= stylesheet_link_tag    'application', media: 'all' %>
+<%= javascript_include_tag 'application' %>
+```
+
+4, application.scssでimportを記入する。
+自分の場合はデフォルトではapplication.cssがあったのでそのファイルを削除し、新しくapplication.scssファイルを作成した。
+```
+app\assets\stylesheets\application.scss
+@import 'bootstrap-material-design/dist/css/bootstrap-material-design';
+@import 'font-awesome-sprockets';
+@import 'font-awesome';
+```
+
+5, application.jsで読み込むJSファイルを指定する
+```
+app\assets\javascripts\application.js
+//
+//= require jquery3
+//= require popper
+//= require rails-ujs
+//= require activestorage
+//= require_tree .
+//= require bootstrap-material-design/dist/js/bootstrap-material-design.js
+```
+
+#### config/application.rbとは
+
+#### better_errorsとbinding_of_callerを導入してエラー画面を使いやすくする
+
+https://qiita.com/terufumi1122/items/a6f9a939dce25b2d9a3e
+
+#### pry-byebugを導入してデバッグ可能な状態にする
+ok
+https://qiita.com/ryosuketter/items/da3a38d0d41c7e20a2d6
+
+#### pry-railsを導入してデバッグ可能な状態にする
+ok
+https://qiita.com/STHEXA/items/1de2411cb3987066c9b9
+https://techtechmedia.com/debug-summary-rail/
+
+
+・redis-railsを導入してセッションの管理方法をクッキーストアではなくredisにする
+https://qiita.com/keitah/items/61f5308424957257017e
+
+
+・rails-18nを導入して国際化に対応する（メンタリングの都合でモデル名, カラム名のみ国際化対応することとする）
+たぶんok(まだ確認は取れてない)
+参考記事:https://qiita.com/shimadama/items/7e5c3d75c9a9f51abdd5

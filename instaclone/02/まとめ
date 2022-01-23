@@ -1,0 +1,189 @@
+## シードファイルとは
+- - -
+・seedファイルとは
+seedファイルというのは簡単に言うと初期データのこと。
+
+・導入方法
+1, railsではseedファイルに入れておきたいデータをdb/seeds.rbに記述していきます。
+シードファイルに↓を記述してrails db:seedをコマンドすればおけ
+```ruby
+# １つのユーザーデータを作りたいとき
+User.create!(
+   email: 'test@test.com',
+   name: 'テスト太郎',
+   image: File.open('./app/assets/images/test.jpg')
+)
+# 複数のデータを一気に作りたいとき
+  5.times do |n|
+    User.create!(
+      email: "test#{n + 1}@test.com",
+      name: "テスト太郎#{n + 1}",
+      image: File.open('./app/assets/images/test.jpg')
+    )
+  end
+# ユーザーに関連した記事などを作成したいとき
+User.all.each do |user|
+  user.articles.create!(
+    title: 'タイトル',
+    body: 'テキストテキストテキストテキスト'
+  )
+end
+```
+2, userとpostなど複数のデータを作成したい場合はdb/seedsフォルダを作成しdb/seeds/user.rb, db/seeds/post.rbをそれぞれ作成しコードを追加する。
+db/seeds.rbファイルには以下のコードを追記する。
+```ruby
+require './db/seeds/users'
+require './db/seeds/posts'
+```
+参考記事:https://qiita.com/takehanKosuke/items/79a66751fe95010ea5ee
+
+## faker
+- - -
+・fakerとは
+
+
+1, gemをインストールして以下をseedファイルに記述する。
+```ruby
+gemfile
+group :development, :test do
+  gem 'faker'
+end
+
+2, 以下の公式リファレンスに従ってseedファイルに追記する。
+https://github.com/faker-ruby/faker#generators
+```
+5.times do |n|
+    User.create!(
+        email: Faker::Internet.unique.email,
+        # uniqueメソッドを付けることで被らないようにしてくれる。
+        username: Faker::JapaneseMedia::OnePiece.unique.character,
+        password: "test",
+        password_confirmation: "test"
+    )
+end
+```
+・より見やすくするために
+```ruby
+puts 'Start inserting seed "posts" ...'
+User.limit(10).each do |user|
+  post = user.posts.create(body: Faker::Hacker.say_something_smart, remote_images_urls: %w[https://picsum.photos/350/350/?random https://picsum.photos/350/350/?random])
+  puts "post#{post.id} has created!"
+end
+```
+↑のように書いてあげた方がターミナル上で何が作られているのか確認できるのでgood
+
+参考記事:https://nishinatoshiharu.com/usage-faker/
+https://qiita.com/ginokinh/items/3f825326841dad6bd11e 
+
+## FontAwesome
+・FontAwsomeとは
+アイコンを簡単に表示できるようにしてくれる。
+
+・導入方法
+1, gemfileにgemを追加し、bundle installを行う。
+gem 'font-awesome-sass'
+
+2, /app/assets/stylesheets/application.scssを編集。
+```
+@import "font-awesome-sprockets";
+@import "font-awesome";
+// 順番間違えないように注意
+```
+
+3, 公式ページから使用したいアイコンを選びviewに表示する。
+slimファイルの場合は以下のように書く。
+```
+p
+  |
+    test
+  = icon 'far', 'surprise'
+/<p>
+/  test
+/  <i class="far fa-surprise"></i>
+/</p>
+```
+
+・参考記事
+https://qiita.com/koki_73/items/fa6d31a3b54a84d19dcf
+https://qiita.com/OneRoomBoy-TK/items/b837f438a49e70b29991
+
+
+## swiperの導入
+・Swiperとは
+スライダー（カルーセル）が作れるJavaScriptライブラリです。
+しかもPCでもスマホでも使えて、レスポンシブ対応可能！
+
+・参考記事
+https://garigaricode.com/swiper/
+https://qiita.com/miketa_webprgr/items/0a3845aeb5da2ed75f82
+
+・導入方法
+導入の方法は以下の３つに分けられる。ここでは3番目の方法で導入する。
+> ・CDN（クラウド上に公開されているCSSとJSを適用させる）
+> ・ファイルをダウンロードして、愚直にCSSとJSを適用させる
+> ・NPMというJSのパッケージマネージャ（RubyでいうところのGemを管理するBundlerのようなもの）
+>   Yarnという類似のパッケージマネージャーを使うことも可能です
+yarnからの導入に関しては以下の記事が詳しく書いてくれている。
+https://qiita.com/ken_ta_/items/bdf04d8ecab6a855e50f
+
+1, yarnでswiperをダウンロードする。
+yarn自体はinstallされていることが前提。
+ターミナルでyarn add swiperを行い、yarn installする。これで必要ファイルがnode_modulesファイルに生成される。
+
+2, 導入↓ファイルを読み込めるように設定を行う。
+application.jsとapplication.scssにそれぞれ追加する。
+swiperがver5の時とファイルのパスが異なるためエラーに注意。
+```js:app/assets/javascript/application.js
+//= require swiper/swiper-bundle.js
+//= require swiper.js
+# 順番を間違えると動かなくなるので注意
+```
+
+```:app/assets/javascript/application.scss
+@import 'swiper/swiper-bundle';
+```
+
+3, config/initializers/assets.rbの設定を確認する。
+導入したnode以下のファイルを読み込むようにしてくれている。
+```ruby:config/initializers/assets.rb
+Rails.application.config.assets.paths << Rails.root.join('node_modules')
+```
+
+4, app\assets\javascripts\swiper.jsを新しく作成し、スライダー機能を各クラスに適用させる。
+```js
+$(function() {
+    new Swiper('.swiper-container', {
+        // スライドの仕方を指定できる。fade, coverflow,flipなどたくさんの種類がある。
+        effect: 'slide',
+        // カーソルが手の掴むアイコンに変わる。
+        grabCursor: true,
+        // ページネーションを付けてくれている。
+        pagination: {
+            el: '.swiper-pagination',
+        },
+        // ナビボタン(ページ移動時の)を付けてくれている。
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    })
+});
+```
+
+5, viewを実装する。
+クラス名を指定のものにして記述する。
+```ruby:app/veiws/controller/index.html.slim
+  = link_to post_path(post) do
+    .swiper-container
+      .swiper-wrapper
+        - post.images.each do |image|
+          .swiper-slide
+            = image_tag image.url, class: 'card-img-top'
+      .swiper-pagination
+```
+
+## carrierwave
+・carrierwaveとは
+画像のアップロード機能を簡単に実装してくれるgemのこと。
+詳しくは以下にまとめました。
+https://github.com/yusukedayo/TIL/blob/master/instaclone/02/carrierwave.md

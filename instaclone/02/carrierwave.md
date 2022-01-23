@@ -176,5 +176,3 @@ end
   .swiper-slide
     = image_tag image.url, class: 'card-img-top'
 ```
-
-

@@ -1,0 +1,137 @@
+
+・エラー内容
+rails s
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:29: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:35: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:35: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:44: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+C:/Ruby30-x64/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+Your Ruby version is 3.0.2, but your Gemfile specified 2.6.4
+
+・解決方法
+https://teratail.com/questions/332743
+
+
+
+・エラー内容
+C:\Users\yusuketsunemi\Desktop\instaclone>bundle exec erb2slim app/views/layout
+ArgumentError: Source and destination files can't be the same.
+  Use --trace for backtrace.
+
+・解決方法
+layoutsのs抜け エラーコードからもっと深刻な問題が発生してると思ったけどそうではなかった。
+Source and destination files can't be the same.
+destinationが行先って意味だからそれわかれば行先表す部分にスペルミスあることは気づけた。
+エラーコードを１つ１つ意味くみ取ること大事。
+
+・やりたいこと
+redisを導入したい。参考記事は以下。
+https://www.sejuku.net/blog/58218
+
+・エラー内容
+rails sをしたときに以下のエラーが発生する。
+Rails::Application is abstract, you cannot instantiate it directly. (RuntimeError)
+
+・解決方法
+ここに書かれているやり方で解決できた。
+Rails::Application.routes.draw doをRails.application.routes.draw doに変更。
+railsのバージョンが古かったので参考記事をコピペするとエラーが発生したと考えられる。
+参考文献:https://stackoverflow.com/questions/44345660/running-rake-routes-on-rails-5-giving-instantiation-error
+
+
+・エラー
+No route matches [GET] "/logout"
+Rails.root: C:/Users/yusuketsunemi/Desktop/instaclone
+
+    - if logged_in?
+    = link_to 'ログアウト', logout_path, method: :delete
+
+
+- - - 回答例と見比べて気づいたこと
+\app\controllers\users_controller.rbにおいて
+自分は以下のようにコードを書いていたが
+def create
+    @user = User.new(user_params)
+    if @user.save
+      redirect_to login_path
+      flash[:notice] = 'ユーザーの作成に成功しました'
+    else
+      flash.now[:alert] = 'ユーザーの作成に失敗しました'
+      render :new
+    end
+  end
+回答例のようにauto_login(@user)を使うとメールアドレスやパスワードを使わず@userとしてオートログインしてくれるので便利。
+  def create
+    @user = User.new(user_params)
+    if @user.save
+      auto_login(@user)
+      redirect_to login_path, success: 'ユーザーを作成しました'
+    else
+      flash.now[:danger] = 'ユーザーの作成に失敗しました'
+      render :new
+    end
+  end
+参考記事:https://qiita.com/aiandrox/items/65317517954d8d44d957
+
+・パスワードの字数制限
+ユーザーモデルの中でパスワードの文字数に対して最低文字数制限を書けていなかった。
+以下のコードを追加することで少なすぎるパスワードをはじくことができる。
+\app\models\user.rb
+validates :password, length: { minimum: 3 }, if: -> { new_record? || changes[:crypted_password] }
+
+・renderについて
+読み込むファイル先を指定できる。
+https://pikawaka.com/rails/render
+・エラーの発生
+undefined local variable or method 'f' for
+```
+原因コード
+.login-register-form
+  .login-register-form-inner
+    .card.mb-3
+      = form_with url: login_path, class: 'card-body', local: true do |f|
+      .form-group
+        = f.label :email, class: 'bmd-label-floating'
+        = f.text_field :email, class: 'form-control'
+      .form-group
+        = f.label :password, class: 'bmd-label-floating'
+        = f.password_field :password, class: 'form-control'
+
+        = f.submit 'ログイン', class: 'btn btn-raised btn-primary'
+正解のコード
+= form_withの下をインデント１つ開けることでエラーは解決された。原因はいまいちわからん
+.login-register-form
+  .login-register-form-inner
+    .card.mb-3
+      = form_with url: login_path, class: 'card-body', local: true do |f|
+        .form-group
+          = f.label :email, 'メールアドレス', class: 'bmd-label-floating'
+          = f.email_field :email, class: 'form-control'
+        .form-group
+          = f.label :password, 'パスワード', class: 'bmd-label-floating'
+          = f.password_field :password, class: 'form-control'
+
+        = f.submit 'ログイン', class: 'btn btn-raised btn-primary'
+```
+
+・エラーメッセージの書き方
+モデルのvaridationに違反しているときにメッセージを表示してくれるもの。
+https://qiita.com/ryuuuuuuuuuu/items/1a1e53d062bff774d88a
+
+・flashメッセージの表示方法について
+https://qiita.com/d0ne1s/items/2eccf6b22e7ed1d25925
+
+・ログイン前後でヘッダーの表示を変える
+\app\views\layouts\application.html.slimで以下のようなif文を書くことによって表示させる内容を変更させる。
+    - if logged_in?
+      = render 'shared/header'
+    - else
+      = render 'shared/before_login_header'
+    = render 'shared/flash_messages'
+    = yield
+これでログイン前のユーザーには余計な場所に飛べないようにしてる。
+
+
+

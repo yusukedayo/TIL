@@ -1,41 +1,398 @@
 
 
-### QAアプリで貰った指摘①
-@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]
-このコードですけど、
- @current_user = User.find_by(id: session[:user_id])if session[:user_id]
-これなっていない理由はなんでしょう？
 
-#### 考え方
-・||=とは何か
-    ・考え方はa = a + 1をa += 1で表すことができるのと同じ。
-    ・左辺がnilまたは未定義であったときに右辺の値を代入する演算式である。
-参考記事：https://www.tairaengineer-note.com/ruby-self-assignment-operator/
+#### ルーティングについて
+・ルーティングのネストについて
+ネストすることのメリット
+・URLの階層構造ができる
+・関係性のあるもの同士を紐づけることができる(とあるツイートとそれに紐づくコメントなど)
 
-・@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]で行われていること。
-    ・@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]を省略せずに表すと
-    @current_user = @current_user || User.find_by(id: session[:user_id])if session[:user_id]になる。
-    ・このコードの役割としては毎回user_idを探す手間を省くこと。１度ログインしていて@current_userにuser_idが格納されている場合は
-    @current_user = @current_userの時点でtrueが返されるので後ろの処理は行われない。これで時間の短縮になる。
-参考記事：https://qiita.com/aiandrox/items/f4215471f40325d69523
+Rails.application.routes.draw do
+
+  resources :questions do
+    resources :answers, only: [:create]
+  end
+  get "/question/solved", to: "questions#solved"
+  get "/question/unsolved", to: "questions#unsolved"
+end
+↑のコードを以下のように変更することができる。
+resources :questions do
+    collection do
+      get :solved
+      get :unsolved
+    end
+
+    member do
+      post :solve
+    end
+    resources :answers, only: [:create, :destroy]
+  end
+参考記事:https://techtechmedia.com/routing-nest-rails/
+
+#### 可読性の向上
+・redirect_backメソッドは直前のページにリダイレクトさせる。
+また、以下のコードだとredirect_back(fallback_location: root_path)の記述が２回行われてしまっている。
+    def create
+        question = Question.find(params[:question_id])
+        answer = question.answers.build(answer_params)
+        answer.user_id = current_user.id
+        if answer.save
+            flash[:success] = "コメントしました"
+        redirect_back(fallback_location: root_path)
+        else
+            flash[:success] = "コメントできませんでした" 
+        redirect_back(fallback_location: root_path)
+        end
+    end
+以下のようにif文の外に出して挙げることでコードの可読性を挙げることができる。
+    def create
+        question = Question.find(params[:question_id])
+        answer = question.answers.build(answer_params)
+        answer.user_id = current_user.id
+        if answer.save
+            flash[:success] = "コメントしました"
+        else
+            flash[:success] = "コメントできませんでした" 
+        end
+        redirect_back(fallback_location: root_path)
+    end
 
 
-#### 回答
-||=を使うことによって既にログインしているユーザーに対して余計な検索を書けないので素早い処理を行うことができるから。
+### CRUD機能について
+・current_user.models.find(params[:id])の省略
+show, edit, update, destroyで同じ記述があるため１つにまとめる。
+まとめることで変更があった場合に１つの処理で変更を行えるので便利。
+```ruby
+app/contorollers/tasks_contoroller.rb
+# ここでshow,edit,update,destroyのアクションを行う前にset_taskアクションを行うように設定する。
+before_action :set_task, only: [:show, :edit, :update, :destroy]
+
+# before_actionがあるのでコードを記述する必要はない。
+def show
+end
+
+def edit
+end
+
+def update
+  if @question.update(question_params)
+    redirect_to question_path(@question), success: '質問を更新しました'
+  else
+    flash.now[:danger] = '失敗しました'
+    render :edit
+  end
+end
+
+def destroy
+  @question.destroy!
+  redirect_to questions_path, success: '質問を削除しました'
+end
+
+private
+# 意図せずに呼ばれることを防ぐためprivate以下で記述する。
+def set_task
+  @task = current_user.models.find(params[:id])
+end
+```
+
+・saveとsave!の使い分けについて
+エラーは大きく２つに分けられる。業務エラーとシステムエラー。
+業務エラーはユーザーの間違えによって発生する（名前を必須で入れないといけないところを記入せずに投稿するなど）
+  保存メソッドの戻り値で成功と失敗を表現する。
+  メソッド内で例外をraiseして、呼び出し側でrescueする、というのはNG。
+  メソッドの呼び出し側は戻り値を必ずチェックする。チェックし忘れると処理の失敗が成功として扱われてしまう。
+  業務エラーの有無はモデルのバリデーションで検証し、エラー内容はモデルのerrorsに格納する
+システムエラーはユーザーによって解決することができないもの。（サーバーのダウンなど）
+  何もしない。Railsの共通処理に任せる。
+  ログへのエラー出力と、500エラー画面の表示はRailsが自動的にやってくれる。
+  明確な理由がない限り、自分でrescueしない。
+  ErrbitやBugsnagのようなエラー通知サービスを導入している場合も、システムエラーは通常自動的に処理されるはずなので、個別に通知メソッドを呼んだりしない。
+  データを保存するとき、「普通に考えると業務エラーは起こりえない場合」や「万一エラーが起きたら処理を中止したい場合」はsaveではなく、save!メソッドを使う。（create!やupdate!でも可）
 
 
-- - -
-#### QAアプリで貰った指摘②
-・session[:user_id]がnilの場合、どのような挙動になるでしょう？
+・N + 1問題について
+N + 1問題とは、必要以上にSQLが発行されてしまい、動作が悪くなってしまう問題のこと
+includesメソッドとは、アソシエーションの関連付けを事前に取得してN +1問題を解決してくれるメソッドのこと
+QAアプリだと以下のコードでN+1問題が発生している。
+app\views\questions\index.html.erb
+<% @questions.each do |question| %>
+    <p><%= question.user.nickname %></p>
+<% end %>
 
-#### 考え方
-1, session[:user_id]がnilの場合はfind_byメソッドに対してnilが渡されます。
-2, find_byメソッドはfindメソッドと異なり検索結果がnilであってもエラーが発生しない。
-なので、@current_userの中にはnilが格納される。
+・current_userの使い方について
+ def edit
+    @question = Question.find(params[:id])
+end
+この状態だと投稿した人以外でも編集することが可能いなってしまっている。
+ def edit
+    @question = current_user.questions.find(params[:id])
+end
+にすることによって関連付けされたユーザーだけが投稿を編集できるようになる。
+update・destroyに関しても同じく。
 
-### 回答
-session[:user_id]がnilの場合は@current_userにnilが格納される。なので、ログインできていない状態になる。
-参考記事：https://qiita.com/tsuchinoko_run/items/f3926caaec461cfa1ca3
+・destoryやupdateアクションの後は以下のようなメッセージを付けた方がユーザーにとって分かりやすい。
+```
+def update
+  @question = current_user.questions.find(params[:id])
+  if @question.update(question_params)
+    redirect_to question_path(@question), success: '質問を更新しました'
+  else
+    flash.now[:danger] = '失敗しました'
+    render :edit
+  end
+end
+def destroy
+  @question = current_user.questions.find(params[:id])
+  @question.destroy!
+  redirect_to questions_path, success: '質問を削除しました'
+end
+```
+
+・buildとnewの違いについて
+def create
+    # @question = current_user.questions.build(question_params)
+    if @question.save
+      #User.where.not(id: current_user.id).each do |user|
+        # QuestionMailer.with(user: user, question: @question).question_created.deliver_later
+      end
+      redirect_to question_path(@question), success: '質問を作成しました'
+    else
+      #flash.now[:danger] = '失敗しました'
+      render :new
+    end
+  end
+
+・buildメソッドについて
+親モデルに属する子モデルのインスタンスを新たに生成したい場合に使うメソッド。（親モデルと子モデルは、アソシエーション設定あり）
+外部キーに値が入った状態でインスタンスが生成できる。
+newメソッドと特に違いはないがアソシエーション設定がされていることがわかるので読み取りやすいコードになる？
+@question = current_user.questions.build(question_params)
+https://qiita.com/tsuchinoko_run/items/d671ea840bc0bfa90186
+
+
+・フォームにおけるlocal: trueの必要性
+```
+= form_with(model:post.new, local: true) do |f|
+```
+local: trueがない場合、Rails5ではAjaxによる送信という意味になる。普通にHTMLとしてフォームを送信する場合にlocal: trueが必要になる。
 
 
 
+#### ページ遷移について
+・_pathと_urlの違いについて
+_path : 通常はこちらを使う。例えば、Viewにおける利用。相対パスを取得する。
+_url : redirect_toする場合のみ。主に、controllerにおいて用いられる。絶対パスを取得する。
+redirect_toの場合は完全なURLを要求されるため（現在は多くのブラウザが相対パスに対応してるためそこまでの重要性はない)
+絶対パスとは目的ファイルまでの道筋を全て記述するもので、相対パスは現在位置から目的のファイルまでの道筋を記述するものです。
+
+・redirect_toとredirect_backについて
+  ・redirect_toとは、redirect_toは指定したURLに遷移させることができるメソッドです。
+  ```ruby 
+  redirect_to "http://www.pikawaka.com"
+  #_pathを使用してURLを指定する。
+  redirect_to root_path
+  # アクションを指定する
+  redirect_to action: :new
+  # コントローラーとアクションを指定する
+  redirect_to  controller: :users, action: :show
+  ```
+  ・redirect_backとは、直前のページにリダイレクトさせるもの。
+
+#### ログイン機能について
+・ユーザープロフィール変更時の注意点
+```
+# よくない例
+class ProfileController
+  def update
+    if current_user.update(profile_params)
+      redirect_to :root
+    else
+      render :edit
+    end
+  end
+end
+# 成功例
+class ProfileController
+  def update
+    @user = User.find(current_user)
+    if @user.update(profile_params)
+      redirect_to :root
+    else
+      render :edit
+    end
+  end
+end
+```
+ログインユーザの情報を変更するときは current_user みたいな変数を変更するんじゃなくて、DBを引き直して更新しましょうって話。
+理由はバリデーションエラーが起きた時に current_user が不正な状態になってしまうから。
+ヘッダーなどにcurrent_userに関するコードがあるとエラーに反していてもそのまま表示されてしまう。
+validationにひっかかる場合、DBが更新されないだけでオブジェクト（current_user）の中身は変わってしまっている
+参考記事:https://diary.shu-cream.net/(Rails%E3%81%A7)%E3%83%97%E3%83%AD%E3%83%95%E3%82%A3%E3%83%BC%E3%83%AB%E6%9B%B4%E6%96%B0%E3%81%BF%E3%81%9F%E3%81%84%E3%81%AA%E3%82%84%E3%81%A4%E3%81%AE%E6%B3%A8%E6%84%8F%E7%82%B9
+
+
+
+・@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]について
+  ・||=とは何か
+      ・考え方はa = a + 1をa += 1で表すことができるのと同じ。
+      ・左辺がnilまたは未定義であったときに右辺の値を代入する演算式である。
+  参考記事：https://www.tairaengineer-note.com/ruby-self-assignment-operator/
+
+  ・@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]で行われていること。
+      ・@current_user ||= User.find_by(id: session[:user_id])if session[:user_id]を省略せずに表すと
+      @current_user = @current_user || User.find_by(id: session[:user_id])if session[:user_id]になる。
+      ・このコードの役割としては毎回user_idを探す手間を省くこと。１度ログインしていて@current_userにuser_idが格納されている場合は
+      @current_user = @current_userの時点でtrueが返されるので後ろの処理は行われない。これで時間の短縮になる。
+  参考記事：https://qiita.com/aiandrox/items/f4215471f40325d69523
+
+  ・session[:user_id]がnilの場合、どのような挙動になるでしょう？
+  1, session[:user_id]がnilの場合はfind_byメソッドに対してnilが渡されます。
+  2, find_byメソッドはfindメソッドと異なり検索結果がnilであってもエラーが発生しない。
+  なので、@current_userの中にはnilが格納される。
+  参考記事：https://qiita.com/tsuchinoko_run/items/f3926caaec461cfa1ca3
+
+
+#### 検索機能(Ransack)
+・検索条件を絞る
+modelにて制限を書けていないとこちらが意図していない要素からも検索をすることができてしまう。この状態ではセキュリティ的に問題がある。
+なので、model上で検索していいカラムの範囲を制限する。
+```
+app/models/検索機能を付けたいモデル名.rb
+#ransackable_attributesは検索対象のカラムを指定してくれる。デフォルトでは全てのカラムが指定されている。
+def self.ransackable_attributes(auth_object = nill)
+  %w[name created_at]
+  # 検索できるカラムをnameとcreated_atに制限している。
+end
+
+# 参照できる関連テーブル。デフォルトは関連付く全てのテーブル。空にすることで検索できなくする。
+def self.ransackable_associations(auth_object = nil)
+  []
+end
+```
+参考:現場rails
+
+・orderメソッドについて
+```
+モデル名.order("並び替えたいカラム名")
+User.order("name")
+```
+でnameカラムがアルファベット順orあいうえお順に並び替えられる。
+また、以下のようにDESCを指定することによって逆順に並び変えることもできる。
+モデル名.order("カラム名 DESC")
+ちなみにDESC（降順）の逆はASC（昇順）です。
+デフォルトではASCになっているのでASCで指定することはあまりありません。
+降順は階段を上から降りてくるイメージ、昇順は階段を登っていくイメージです。
+上から降りてくるので大きい数字から、階段を登っていくので小さい数字からということになりますね。
+
+```ruby
+app/contoroller
+def index
+    @q = Question.ransack(params[:q])
+    @questions = @q.result(distinct: true).order(created_at: :desc).page(params[:page]).per(5)
+    # この場合はdescで降順になっているので日付の大きいもの、つまり最新の投稿が上から表示されるようになっている。
+end
+```
+参考記事:https://pikawaka.com/rails/order
+
+----
+
+#### viewについて
+・time_ago_in_wordsで「～分前」を表示する。
+〜分前という表示を実現したい時に使用する railsのDateHelperで定められているヘルパーです。
+```
+small.text-muted #{time_ago_in_words(answer.created_at)}前に投稿
+作成されてから何分前かを指定することができる。
+```
+https://qiita.com/bellx2/items/30906a7832ef4ff4c886
+
+・simple_formatについて
+文字列を <p> で括る
+改行は <br /> を付与
+連続した改行は、 </p><p> を付与
+```ruby
+<% text = "テキスト\nテキスト\n\nテキストテキスト" %>
+<%= simple_format text %>
+# 出力結果
+<p>テキスト
+<br />テキスト</p>
+
+<p>テキストテキスト</p>
+```
+参考記事:https://qiita.com/mojihige/items/c01682774e8ef29b361f
+
+
+#### 国際化について
+
+・日本語設定
+app/config/locales/ja.ymlで使用するファイルは以下のURLからコピーすると楽
+https://github.com/svenfuchs/rails-i18n/blob/master/rails/locale/ja.yml
+
+
+・外部キーにindexを付けた方がいい理由
+https://qiita.com/towtow/items/4089dad004b7c25985e3
+
+
+#### pull requestで大量の差分ができてしまった時の対処法
+1. git checkout main
+2. git rm vendor/bundle --cached
+3. git addとcommitとpush
+4. git checkout develop
+5. git merge main
+6. git push origin develop
+
+
+
+#### メソッド
+・peresent?メソッド
+nilと空のオブジェクトを判定できる。
+```
+if description.present?
+end
+```
+参考記事:https://qiita.com/somewhatgood@github/items/b74107480ee3821784e6
+
+
+
+・app\controllers\sessions_controller.rbのsession[:user_id] = user.idは何をしているのか
+def create
+user = User.find_by(email: session_params[:email])
+if user&.authenticate(session_params[:password])
+    session[:user_id] = user.id
+    redirect_to root_path
+else
+    render :new
+end
+end
+
+
+
+#### まだ整理できてない部分
+
+・この部分のコード説明できる？
+    admin_user = User.find_by(email: admin_session_params[:email])
+
+    if admin_user&.authenticate(admin_session_params[:password]) && admin_user.admin
+      session[:admin_user_id] = admin_user.id
+      redirect_to admin_questions_url, notice: '管理者ログインしました。'
+    else
+      render :new
+    end
+
+・redirect_toとredirect_backの違いは？
+
+
+・time_ago_in_wordsメソッドとは
+
+・コメント機能でcurrent_user.answers.newを書く意味について
+https://teratail.com/questions/319868
+
+
+
+・コメント機能見直すと吉
+https://qiita.com/kurawo___D/items/d2fefdd329f5310113aa
+
+・questions_contorollerでのsolved/unsolvedの省略した書き方について
+https://github.com/miketa-webprgr/Q-A_app_ransack/pull/1/files
+
+
+・selfメソッドとは
+https://qiita.com/suzuki-koya/items/1553c405beeb73f83bbc

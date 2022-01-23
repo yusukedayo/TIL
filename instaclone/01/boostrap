@@ -1,0 +1,125 @@
+
+
+
+
+
+
+
+Material Design for Bootstrapとは
+↓に載っているような多種多様のマテリアルデザインのパーツを使用できるようにしてくれる。
+https://mdbootstrap.com/live/_MDB/index/docs/presentation-free/lp-components.html
+
+application.js
+//= require jquery3
+//= require popper
+//= require rails-ujs
+//= require bootstrap-material-design/dist/js/bootstrap-material-design.js
+
+5, rails sでページを確認すると以下のエラーが発生した。
+・原因はwebpackをインストールできていないことだと考えられるのでbundle installを行ってみる。
+参考記事:https://github.com/rails/webpacker/issues/325
+・Don't know how to build task 'webpacker:install'のエラーが発生
+参考記事:https://qiita.com/sanriyochan/items/52780af6a9d77d8a14ba
+・エラー内容がさらに変わる rails webpacker:installをすると良さそう
+Webpacker configuration file not found C:/Users/yusuketsunemi/Desktop/instaclone/config/webpacker.yml. 
+Please run rails webpacker:install Error: No such file or directory @ rb_sysopen - C:/Users/yusuketsunemi/Desktop/instaclone/config/webpacker.yml (RuntimeError)
+NoMethodError at /
+undefined method `stylesheet_pack_tag' for #<#<Class:0x0000000010e79388>:0x0000000012fc65e0>
+
+・なぜかroutesエラーになってしまう。
+bundle exec rails webpacker:install
+rails aborted!
+ArgumentError: Missing :controller key on routes definition, please check your routes.
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:329:in `check_part'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:309:in `check_controller_and_action'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:254:in `normalize_options!'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:118:in `initialize'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:71:in `new'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:71:in `build'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:1932:in `add_route'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:1904:in `decomposed_match'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:1868:in `block in map_match'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:1862:in `each'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:1862:in `map_match'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:1610:in `match'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:743:in `map_method'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/mapper.rb:704:in `get'
+C:/Users/yusuketsunemi/Desktop/instaclone/config/routes.rb:3:in `block in <main>'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/route_set.rb:432:in `instance_exec'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/route_set.rb:432:in `eval_block'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.6/lib/action_dispatch/routing/route_set.rb:414:in `draw'
+C:/Users/yusuketsunemi/Desktop/instaclone/config/routes.rb:1:in `<main>'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:60:in `load'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:60:in `load'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.6/lib/active_support/dependencies.rb:285:in `block in load'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.6/lib/active_support/dependencies.rb:257:in `load_dependency'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.6/lib/active_support/dependencies.rb:285:in `load'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application/routes_reloader.rb:41:in `block in load_paths'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application/routes_reloader.rb:41:in `each'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application/routes_reloader.rb:41:in `load_paths'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application/routes_reloader.rb:20:in `reload!'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application/routes_reloader.rb:30:in `block in updater'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.6/lib/active_support/file_update_checker.rb:83:in `execute'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application/routes_reloader.rb:10:in `execute'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application/finisher.rb:130:in `block in <module:Finisher>'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/initializable.rb:32:in `instance_exec'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/initializable.rb:32:in `run'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/initializable.rb:61:in `block in run_initializers'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/initializable.rb:60:in `run_initializers'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application.rb:361:in `initialize!'
+C:/Users/yusuketsunemi/Desktop/instaclone/config/environment.rb:5:in `<main>'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:23:in `require'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:23:in `block in require_with_bootsnap_lfi'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/loaded_features_index.rb:100:in `register'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:22:in `require_with_bootsnap_lfi'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:31:in `require'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.6/lib/active_support/dependencies.rb:291:in `block in require'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.6/lib/active_support/dependencies.rb:257:in `load_dependency'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.6/lib/active_support/dependencies.rb:291:in `require'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application.rb:337:in `require_environment!'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/application.rb:520:in `block in run_tasks_blocks'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/commands/rake/rake_command.rb:23:in `block in perform'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/commands/rake/rake_command.rb:20:in `perform'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/command.rb:48:in `invoke'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/railties-5.2.6/lib/rails/commands.rb:18:in `<main>'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:23:in `require'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:23:in `block in require_with_bootsnap_lfi'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/loaded_features_index.rb:100:in `register'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:22:in `require_with_bootsnap_lfi'
+C:/Users/yusuketsunemi/Desktop/instaclone/vendor/bundle/ruby/2.6.0/gems/bootsnap-1.9.3/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:31:in `require'
+./bin/rails:4:in `<main>'
+Tasks: TOP => app:template => environment
+(See full trace by running task with --trace)
+・とりあえずroutesファイルを全部コメントアウトすればエラーは解消されてwebpackはインストールできた。
+
+このコードならcontroller key on routes definition, please check your routes.のエラーは発生しなかった。
+Rails.application.routes.draw do
+  root 'users#new'
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+こっちのコードはエラーが発生した。違いがわからん
+Rails.application.routes.draw do
+  # root 'users#new'
+  get 'users#new'
+  get 'users#create'
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+
+・次はこのエラーが発生
+Error: File to import not found or unreadable: ~bootstrap-material-design/scss/bootstrap-material-design.
+        on line 1:1 of app/assets/javascripts/stylesheets/application.scss
+>> @import '~bootstrap-material-design/scss/bootstrap-material-design';
+   ^
+aplication cssに'~bootstrap-material-design/scss/bootstrap-material-design';を記述することで解決。
+
+・次に以下のエラーが発生
+RuntimeError at /
+Your ExecJS runtime Duktape isn't supported by autoprefixer-rails,
+please switch to Node.js (V8) or mini_racer (V8)
+
+・mini_racerをインストールしようとすると以下のエラーが発生
+An error occurred while installing libv8-node (16.10.0.0), and Bundler cannot
+continue.
+Make sure that `gem install libv8-node -v '16.10.0.0' --source
+'https://rubygems.org/'` succeeds before bundling.
+

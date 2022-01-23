@@ -1,0 +1,100 @@
+### ヘッダーの作成
+1, ヘッダーに表示する要素を整理する
+・エラーメッセージ
+・flashメッセージ
+・ログイン前のヘッダー
+・ログイン後のヘッダー
+
+2, app\views\sharedフォルダーを作成してそれぞれのテンプレートファイルを作成する。
+この時、_header.html.slimのようにファイル名の前に_を付けるようにする。
+
+3, \app\views\layouts\application.html.slimで以下のようなif文を書くことによって表示させる内容を変更させる。
+```
+body
+    - if logged_in?
+      = render 'shared/header'  #ログイン後のヘッダー
+    - else
+      = render 'shared/before_login_header' #ログイン前のヘッダー
+    = render 'shared/flash_messages'    #flashメッセージ
+    = yield
+```
+
+4, エラーメッセージの表示方法について
+ここでのエラーメッセージとは「モデルのvaridationに違反しているときにメッセージを表示してくれる」もの。
+app\views\shared\_error_messages.html.slimにおいて以下のコードを追記する。
+```
+- if object.errors.any?
+  #error_messages.alert.alert-danger
+    ul.mb-0
+      - object.errors.full_messages.each do |msg|
+        li = msg
+```
+app\views\users\new.html.slimにrenderで追記する。
+```
+= form_with model: @user, class: 'card-body', local: true do |f|
+        = render 'shared/error_messages', object: @user
+        .form-group
+          = f.label :username, class: 'bmd-label-floating'
+          = f.text_field :username, class: 'form-control'
+        .form-group
+          = f.label :email, class: 'bmd-label-floating'
+          = f.email_field :email, class: 'form-control'
+        .form-group
+          = f.label :password, class: 'bmd-label-floating'
+          = f.password_field :password, class: 'form-control'
+        .form-group
+          = f.label :password_confirmation, class: 'bmd-label-floating'
+          = f.password_field :password_confirmation, class: 'form-control'
+
+        = f.submit '登録', class: 'btn btn-raised btn-primary'
+```
+これで対象のモデルのdaridationに違反した場合に違反メッセージが表示させるようになる。
+参考記事:https://qiita.com/ryuuuuuuuuuu/items/1a1e53d062bff774d88a
+
+5, flashメッセージの表示方法について
+app\views\shared\_flash_messages.html.slimで以下のコードを追記する。これで表示領域が確保できる。
+```
+- flash.each do |message_type, message|
+  div class=("alert alert-#{message_type}") = message
+```
+contorollerにおいて以下のようにコードを書くことでflashメッセージを表示することができる。
+flash→次のアクションまでデータを保持する→redirect_toと一緒に使う
+flash.now→次のアクションに移行した時点でデータが消える→renderと一緒に使う
+```
+def create
+  @user = User.new(user_params)
+  if @user.save
+    auto_login(@user)
+    redirect_to login_path, success: 'ユーザーを作成しました'
+  else
+    flash.now[:danger] = 'ユーザーの作成に失敗しました'
+    render :new
+  end
+end
+```
+参考記事:https://qiita.com/d0ne1s/items/2eccf6b22e7ed1d25925
+
+6, ログイン後とログイン前のヘッダーの使い分け
+以下のコードのように使える機能によって分けて挙げるとよい。
+```
+#ログイン前
+ul.navbar-nav.mt-2.mt-lg-0
+  li.nav-item
+    = link_to 'ポスト一覧', '#', class: 'nav-link'
+  li.nav-item
+    = link_to 'ログイン', login_path, class: 'nav-link'
+
+#ログイン後
+ul.navbar-nav.mt-2.mt-lg-0
+  li.nav-item
+    a.nav-link href="#"
+      = icon 'far', 'image', class: 'fa-lg'
+  li.nav-item
+    a.nav-link href="#"
+      = icon 'far', 'heart', class: 'fa-lg'
+  li.nav-item
+    a.nav-link href="#"
+      = icon 'far', 'user', class: 'fa-lg'
+  li.nav-item
+    = link_to 'ログアウト', logout_path, class: 'nav-link', method: :delete
+```

@@ -1,0 +1,62 @@
+
+### = render @postsとは in index
+・投稿一覧ページ (index.html.erb) にはPostテーブルの要素の数だけ投稿のタイトルと内容が繰り返し処理により表示されている状態です。
+よって本来のコードは以下であるべき
+```erb
+<% @posts.each do |post| %>
+  <%= post.title %>
+  <%= post.content %>
+<% end %>
+```
+このコードを_post.html.erbというファイルで部分テンプレートを作成する。
+```
+_post.html.erb
+<%= post.title %>
+<%= post.content %>
+```
+これをindexファイルで呼び出すと
+```
+<% @posts.each do |post| %>
+ <%= render partial: 'post', locals: {post : post} %>
+ # localsオプションを用いると、部分テンプレート内で使う変数の定義をすることができる
+<% end %>
+↓さらにcollectionオプションを使用すると１行で書くことができる。
+<%= render partial: 'post', collection: @posts %>
+# collectionオプションでは指定した変数（@posts）の単数形（post）が自動的に、変数に入れたい値として指定されます。
+```
+３つの条件を満たすとさらに省略できる。
+・呼び出す部分テンプレートが、views/posts内に存在する
+・部分テンプレート名が_post.html.erbである
+・部分テンプレート内の変数がpostである
+```
+<%= render @posts %>
+```
+参考記事:https://qiita.com/Izushi/items/caeec7cf00d0bb82d728
+
+・自分の投稿だけに編集・削除ボタンが表示されるようにする。
+モデル内で以下のヘルパーメソッドを定義する。
+```
+models/user.rb
+def own?(object)
+  id == object.user_id
+  objectのidがuser_idと一致するかを確認している。
+end
+```
+viewでボッチ演算式を使ってユーザーがログインしていなくてもエラーが発生しないようにする。
+```
+- if current_user&.own?(post)
+# このcurrent_userはログインしていない時はnilになってしまうのでログインしていないときにこのメソッドが実行されてしまうと
+# エラーになってしまうのですがここでボッチ演算子を使うことでこのnilのcurrent_userをnilという表記で出力することができます。
+  .ml-auto
+    = link_to post_path(post), class: 'mr-3', method: :delete, data: { confirm: '本当に削除しますか？' } do
+      = icon 'far', 'trash-alt', class: 'fa-lg'
+    = link_to edit_post_path(post) do
+      = icon 'far', 'edit', class: 'fa-lg'
+```
+参考記事:https://qiita.com/yoshi_4/items/e987b698c1978d248cfc
+
+
+
+・href="#" とは何か
+href="#" というのは「そのページの最上部へのリンク」という意味で、
+スクロールした場所から一番上に戻したい場合に使います。

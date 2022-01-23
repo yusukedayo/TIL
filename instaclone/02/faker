@@ -1,0 +1,35 @@
+#### faker
+・fakerとは
+テストなどに使用するダミーデータを作成してくれる。
+
+・導入方法
+1, gemをインストールして以下をseedファイルに記述する。
+```ruby
+gemfile
+group :development, :test do
+  gem 'faker'
+end
+
+2, 以下の公式リファレンスに従ってseedファイルに追記する。
+https://github.com/faker-ruby/faker#generators
+```
+5.times do |n|
+    User.create!(
+        email: Faker::Internet.unique.email,
+        # uniqueメソッドを付けることで被らないようにしてくれる。
+        username: Faker::JapaneseMedia::OnePiece.unique.character,
+        password: "test",
+        password_confirmation: "test"
+    )
+end
+```
+参考記事:https://nishinatoshiharu.com/usage-faker/
+https://qiita.com/ginokinh/items/3f825326841dad6bd11e シンプルで分かりやすい
+```ruby
+puts 'Start inserting seed "posts" ...'
+User.limit(10).each do |user|
+  post = user.posts.create(body: Faker::Hacker.say_something_smart, remote_images_urls: %w[https://picsum.photos/350/350/?random https://picsum.photos/350/350/?random])
+  puts "post#{post.id} has created!"
+end
+```
+↑のように書いてあげた方がターミナル上で何が作られているのか確認できるのでgood
