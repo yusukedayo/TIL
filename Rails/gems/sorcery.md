@@ -31,7 +31,7 @@ You may need oauth2 if you use external providers such as any of these: https://
 
 2, bundle exec rails generate sorcery:installで以下のmigrationファイルを作成。
 
-``ruby
+```ruby
 db\migrate\20211219030514_sorcery_core.rb
 def change
   create_table :users do |t|
@@ -44,6 +44,7 @@ end
 ```
 
 3, ユーザー名を追加してbundle db:migrateでテーブル作成。
+
 ```ruby
 create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "email", null: false
@@ -172,7 +173,7 @@ app/controllers/user_sessions_controller.rb
     logout
     redirect_to(login_path, notice: 'ログアウトしました')
   end
-```ruby
+```
 
 12, routesで以下のように設定を変更する。
 ```ruby
